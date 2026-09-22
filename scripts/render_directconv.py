@@ -1,0 +1,110 @@
+"""Render directConv's video lab for the portfolio, with directConv itself.
+
+Run it with directConv's environment, which has the frugal_ml PyO3 extension built:
+
+    ../../tinys/directConv/.venv/bin/python scripts/render_directconv.py CLIP.mp4
+
+It drives `directConv.demo.runner` the way the lab page does. `run` measures numpy and the
+frugal_ml strategies on this machine and checks every output against numpy; `play` encodes the
+three videos (input, Sobel-x edges, Gaussian blur) for one strategy on one device, dropping the
+frames that device could not have processed in time. The five scenarios are the lab's own.
+Videos land in media/directconv/ (re-encoded at CRF 32 for the web, the 720p input kept once),
+the numbers in data/directconv.js.
+"""
+
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+import imageio_ffmpeg
+from directConv import edge
+from directConv.demo import runner
+
+ROOT = Path(__file__).resolve().parent.parent
+MEDIA = ROOT / "media" / "directconv"
+OUT = ROOT / "data" / "directconv.js"
+
+# (id, label, requested frame size, device, strategy) - the lab's SCENARIOS, same order.
+SCENARIOS = [
+    ("fits", "It fits", "96×54", "stm32", "stack"),
+    ("wall", "The wall", "1280×720", "stm32", None),
+    ("shrink", "Shrink it", "1280×720", "stm32", "reduced"),
+    ("stream", "Stream it", "1280×720", "stm32", "stream"),
+    ("mac", "On a computer", "1280×720", "host", "heap"),
+]
+FRAMES = 300  # the whole 10 s clip at 30 fps, no loop
+WEB_CRF = 32  # the lab encodes at CRF 20 for a local page; 720p edge maps are ~7x smaller at 32
+
+
+def web_encode(src: str, dst: Path) -> None:
+    subprocess.run(
+        [imageio_ffmpeg.get_ffmpeg_exe(), "-loglevel", "error", "-y", "-i", src, "-c:v", "libx264", "-preset", "slow",
+         "-crf", str(WEB_CRF), "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(dst)],
+        check=True,
+    )  # fmt: skip
+
+
+def main(clip: str) -> None:
+    source = os.path.abspath(clip)
+    fps = runner.video_fps(source)
+    MEDIA.mkdir(parents=True, exist_ok=True)
+    for old in MEDIA.glob("*.mp4"):
+        old.unlink()
+    runs, scenarios, written = {}, {}, set()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        # `run` keeps only its own context, so each size is played right after it is run.
+        for res in ("1280×720", "96×54"):
+            result = runner.run(source, FRAMES, res, tmp, progress=lambda s, t="", p=None: print(f"  {s}: {t}", flush=True))
+            runs[res] = {
+                "numpy_ms": result["numpy"]["ms_per_frame"],
+                "numpy_breakdown": result["numpy"]["breakdown"],
+                "measured": result["measured"],
+                "max_abs_diff": result["max_abs_diff"],
+            }
+            for sid, label, r, dev, pick in SCENARIOS:
+                if r != res:
+                    continue
+                cards = result["cards"][dev]
+                card = cards[pick] if pick else cards["stack"]
+                entry = {
+                    "id": sid, "label": label, "device": dev, "strategy": pick, "requested": r,
+                    "size": card.get("size"), "bytes": card["bytes"], "budget": card["budget"],
+                    "fits": card["fits"], "predicted": card.get("predicted", False), "reason": card["reason"],
+                    "pixels_kept": card.get("pixels_kept"), "chip_ms": card.get("chip_ms"), "host_ms": card.get("host_ms"),
+                }  # fmt: skip
+                if pick:
+                    played = runner.play(result["run_id"], pick, dev, fps, tmp)
+                    videos = {}
+                    for kind, url in played["videos"].items():
+                        # The input is never dropped, so every 720p scenario shares one input video.
+                        name = "input-720p.mp4" if kind == "original" and entry["size"]["w"] == 1280 else f"{sid}-{kind}.mp4"
+                        if name not in written:
+                            web_encode(os.path.join(tmp, os.path.basename(url)), MEDIA / name)
+                            written.add(name)
+                        videos[kind] = name
+                    entry["videos"] = videos
+                    entry |= {k: played[k] for k in ("camera_fps", "frames", "processed", "processed_indices", "dropped", "dropped_pct", "ms_per_frame", "effective_fps")}
+                scenarios[sid] = entry
+                print(f"{sid}: {entry.get('processed', 0)}/{entry.get('frames', FRAMES)} frames kept", flush=True)
+
+    data = {
+        "clip": "Big Buck Bunny, 10 s excerpt at 1280×720, 30 fps. © 2008 Blender Foundation, www.bigbuckbunny.org, CC BY 3.0",
+        "fps": fps,
+        "frames": FRAMES,
+        "host": "Apple M4 Pro",
+        "stack_budget": edge.STM32F446RE.budget,
+        "verified": edge.STM32F446RE.verified,
+        "runs": runs,
+        "scenarios": [scenarios[s[0]] for s in SCENARIOS],
+    }
+    OUT.write_text("// Generated by scripts/render_directconv.py with directConv itself. Do not edit by hand.\n"
+                   f"window.DIRECTCONV = {json.dumps(data, ensure_ascii=False)};\n")
+    print(f"wrote {OUT} and {len(list(MEDIA.glob('*.mp4')))} videos in {MEDIA}")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])

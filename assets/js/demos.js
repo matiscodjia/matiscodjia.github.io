@@ -243,7 +243,134 @@
     compute();
   })();
 
-  // ── Demo 2: streaming convolution and the memory wall ───
+  // ── Demo 2: directConv's video lab, rendered by directConv ──
+  (function videoLab() {
+    const D = window.DIRECTCONV;
+    const box = $("#conv-demo");
+    if (!D || !box) return;
+    const KINDS = ["original", "edges", "blur"];
+    const figs = KINDS.map((k) => $(`#dc-vids figure[data-k="${k}"]`));
+    const vids = figs.map((f) => $("video", f));
+    const byId = Object.fromEntries(D.scenarios.map((s) => [s.id, s]));
+    const run720 = D.runs["1280×720"];
+    const numpyX = run720.numpy_ms / run720.measured["heap@720x1280"].ms_per_frame;
+    const kb = (b) => (b >= 1e6 ? (b / 1e6).toFixed(1) + " MB" : (b / 1e3).toFixed(1) + " kB");
+    const ms = (v) => (v >= 100 ? v.toFixed(0) : v >= 1 ? v.toFixed(1) : v.toFixed(2)) + " ms";
+    const pct = (v) => (v * 100 >= 10 ? (v * 100).toFixed(0) : (v * 100).toFixed(1)) + " %";
+
+    // The aside's host numbers come from the same rendering run.
+    $("#dc-x").textContent = Math.round(numpyX) + "×";
+    $("#dc-heap-ms").textContent = run720.measured["heap@720x1280"].ms_per_frame.toFixed(2);
+    $("#dc-numpy-ms").textContent = run720.numpy_ms.toFixed(1);
+    $("#dc-copy").textContent = Math.round(100 * run720.numpy_breakdown.copy_share);
+    $("#dc-copy-mb").textContent = Math.round(run720.numpy_breakdown.copy_mb_per_frame);
+
+    const SAY = {
+      fits: (s) => `At ${s.size.name} the whole frame, both filters and both outputs take ${kb(s.bytes)}. That fits in the chip's stack, and at ${ms(s.chip_ms)} per frame every one of the ${s.frames} frames goes through.`,
+      wall: (s) => `At 1280×720 a full frame needs ${kb(s.bytes)} of tensors, ${Math.round(s.bytes / s.budget)}× what the chip's stack can hold, and the chip has no heap. Nothing can run.`,
+      shrink: (s) => `The same full-frame code on the biggest frame that fits: ${s.size.name}, ${pct(s.pixels_kept)} of the pixels. Every frame goes through, ${ms(s.chip_ms)} each, but most of the detail is gone.`,
+      stream: (s) => `Every pixel, but only three rows per filter held at once: ${kb(s.bytes)}. One 720p frame takes ${ms(s.chip_ms)} on the chip, so it keeps ${s.processed} of ${s.frames} frames and holds the last result in between.`,
+      mac: (s) => `On a laptop the full frame simply goes on the heap: ${ms(s.host_ms)} per frame, every frame kept, outputs identical to numpy's and ${Math.round(numpyX)}× faster than numpy on the same machine.`,
+    };
+
+    let cur = null, playing = false, raf = 0, started = false;
+
+    const strip = C.mount($("#dc-strip"), 46, (s, w, h) => {
+      if (!cur) return;
+      const n = D.frames, step = w / n, kept = new Set(cur.processed_indices || []);
+      const g = C.el("g", {}, s);
+      for (let i = 0; i < n; i++) {
+        const on = kept.has(i);
+        C.el("rect", { x: (i * step).toFixed(2), y: on ? 6 : 14, width: Math.max(0.8, step - (step > 3 ? 1 : 0.3)).toFixed(2), height: on ? 26 : 10, rx: 1, fill: on ? "var(--accent)" : "var(--hair-strong)" }, g);
+      }
+      if (!cur.strategy) C.text(s, w / 2, 42, "no frame can run on the chip at this size", { class: "lbl-mute", "text-anchor": "middle" });
+      C.el("line", { id: "dc-head", x1: 0, x2: 0, y1: 0, y2: 38, stroke: "var(--ink)", "stroke-width": 2, "stroke-linecap": "round" }, s);
+    });
+
+    function head() {
+      const v = vids[0], line = $("#dc-head");
+      if (line && v.duration) {
+        const x = (v.currentTime / v.duration) * $("#dc-strip").viewBox.baseVal.width;
+        line.setAttribute("x1", x); line.setAttribute("x2", x);
+      }
+      // keep the three videos on one clock: the input leads
+      for (let i = 1; i < vids.length; i++) {
+        const o = vids[i];
+        if (o.getAttribute("src") && Math.abs(o.currentTime - v.currentTime) > 0.08) o.currentTime = v.currentTime;
+      }
+      if (playing) raf = requestAnimationFrame(head);
+    }
+
+    function setPlaying(on) {
+      playing = on;
+      const btn = $("#dc-play");
+      btn.setAttribute("aria-pressed", String(on));
+      btn.lastElementChild.textContent = on ? "Pause" : "Play";
+      const active = vids.filter((v) => v.getAttribute("src"));
+      if (on) { active.forEach((v) => v.play().catch(() => {})); cancelAnimationFrame(raf); raf = requestAnimationFrame(head); }
+      else { active.forEach((v) => v.pause()); cancelAnimationFrame(raf); head(); }
+    }
+
+    function show(id, withVideo = true) {
+      cur = byId[id];
+      $$(".scen .chip", box).forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.s === id)));
+      $("#dc-say").textContent = SAY[id](cur);
+      const files = cur.videos || { original: byId.mac.videos.original };
+      const small = cur.size && cur.size.w < 400 && cur.strategy;
+      if (withVideo) $("#dc-vids").classList.add("loading");
+      const waits = [];
+      if (withVideo) KINDS.forEach((k, i) => {
+        const v = vids[i], nope = $(".nope", figs[i]), file = files[k];
+        figs[i].querySelector(".vbox").classList.toggle("px", !!small);
+        if (nope) {
+          nope.hidden = !!file;
+          if (!file) nope.innerHTML = `<span><b>✕ Doesn't fit</b>needs ${kb(cur.bytes)} of tensors,<br>the stack holds ${kb(cur.budget)}</span>`;
+        }
+        if (!file) { v.removeAttribute("src"); v.load(); return; }
+        const url = "media/directconv/" + file;
+        if (v.getAttribute("src") !== url) { v.setAttribute("src", url); v.preload = "auto"; v.load(); }
+        waits.push(v.readyState >= 3 ? Promise.resolve() : new Promise((r) => { v.addEventListener("canplay", r, { once: true }); setTimeout(r, 4000); }));
+      });
+      if (withVideo) Promise.all(waits).then(() => {
+        vids.forEach((v) => { if (v.getAttribute("src")) v.currentTime = 0; });
+        $("#dc-vids").classList.remove("loading");
+        setPlaying(playing || !reduceMotion);
+      });
+
+      const chip = cur.device === "stm32";
+      $("#dc-size").textContent = cur.size ? cur.size.name : "–";
+      $("#dc-size-note").textContent = !cur.strategy ? "the full 720p frame" : cur.pixels_kept < 1 ? `${pct(cur.pixels_kept)} of the 1280×720 pixels` : "every pixel of the frame";
+      $("#dc-mem").innerHTML = `${kb(cur.bytes)} ${tagHTML("exact")}`;
+      $("#dc-mem-note").innerHTML = cur.device === "host"
+        ? statusHTML(true, "on the heap: a laptop has room for it", "")
+        : cur.fits ? statusHTML(true, cur.predicted ? `fits ${kb(cur.budget)}, predicted: not yet run this big on the board` : `fits the ${kb(cur.budget)} stack budget`, "")
+        : statusHTML(false, "", `${Math.round(cur.bytes / cur.budget)}× the ${kb(cur.budget)} stack budget`);
+      if (!cur.strategy) {
+        $("#dc-time").textContent = "–";
+        $("#dc-time-note").textContent = "can't run on the chip";
+        $("#dc-kept").innerHTML = "<b>0 of 300 frames</b>: nothing runs";
+      } else {
+        const t = chip ? cur.chip_ms : cur.host_ms;
+        $("#dc-time").innerHTML = `${ms(t)} ${tagHTML(chip ? "proj" : "host")}`;
+        $("#dc-time-note").textContent = `${chip ? "on the STM32F446RE" : "on the laptop"} · up to ${1000 / t >= 100 ? Math.round(1000 / t).toLocaleString("en") : (1000 / t).toFixed(1)} frames per second`;
+        $("#dc-kept").innerHTML = `<b>${cur.processed} of ${cur.frames} frames</b> processed at ${cur.camera_fps} fps${cur.dropped ? `, ${Math.round(cur.dropped_pct)} % dropped` : ""}`;
+      }
+      strip();
+    }
+
+    $$(".scen .chip", box).forEach((b) => b.addEventListener("click", () => { started = true; show(b.dataset.s); }));
+    $("#dc-play").addEventListener("click", () => setPlaying(!playing));
+    // Nothing downloads until the lab is on screen.
+    const first = () => { if (!started) { started = true; show("stream"); } };
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); first(); } }, { rootMargin: "200px" });
+      io.observe(box);
+    } else first();
+    // Fill the text and numbers before any video loads, so the lab reads correctly at rest.
+    show("stream", false);
+  })();
+
+  // ── Demo 2b: any frame size, the memory wall ───────────
   (function convDemo() {
     const KH = 3, KW = 3, K = 2, F32 = 4;
     const LADDER = [[64, 36], [96, 54], [128, 72], [160, 90], [192, 108], [256, 144], [320, 180], [426, 240], [640, 360], [854, 480], [1280, 720], [1920, 1080]];
@@ -269,54 +396,7 @@
 
     const sel = $("#conv-size");
     sel.innerHTML = LADDER.map(([w, h], i) => `<option value="${i}"${w === 1280 ? " selected" : ""}>${w}×${h}</option>`).join("");
-    const cin = $("#conv-in"), cout = $("#conv-out");
-    const xin = cin.getContext("2d"), xout = cout.getContext("2d");
-    let W = 1280, H = 720, gray = null, base = null, userImg = null, raf = 0, row = 0, outImg = null;
-
-    function testPattern(w, h) {
-      const c = document.createElement("canvas"); c.width = w; c.height = h;
-      const g = c.getContext("2d");
-      const sky = g.createLinearGradient(0, 0, 0, h);
-      sky.addColorStop(0, "#f3b48c"); sky.addColorStop(1, "#fcefe2");
-      g.fillStyle = sky; g.fillRect(0, 0, w, h);
-      g.fillStyle = "#f4a42a"; g.beginPath(); g.arc(w * 0.78, h * 0.24, h * 0.1, 0, Math.PI * 2); g.fill();
-      let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-      let x = 0;
-      while (x < w) {
-        const bw = w * (0.05 + rnd() * 0.08), bh = h * (0.25 + rnd() * 0.45);
-        const shade = 50 + Math.floor(rnd() * 70);
-        g.fillStyle = `rgb(${shade + 34},${shade + 6},${shade - 8})`;
-        g.fillRect(x, h * 0.78 - bh, bw, bh);
-        g.fillStyle = "rgba(255,222,160,0.9)";
-        const cw = Math.max(1, bw / 7), ch = Math.max(1, h / 60);
-        for (let yy = h * 0.78 - bh + ch * 2; yy < h * 0.74; yy += ch * 2.6)
-          for (let xx = x + cw; xx < x + bw - cw; xx += cw * 2) if (rnd() > 0.35) g.fillRect(xx, yy, cw, ch);
-        x += bw + w * 0.004;
-      }
-      g.fillStyle = "#3b2a22"; g.fillRect(0, h * 0.78, w, h * 0.22);
-      g.strokeStyle = "#fcefe2"; g.lineWidth = Math.max(1, h / 180);
-      for (let i = -4; i <= 4; i++) { g.beginPath(); g.moveTo(w / 2 + i * w * 0.02, h * 0.78); g.lineTo(w / 2 + i * w * 0.2, h); g.stroke(); }
-      return c;
-    }
-
-    function load() {
-      [W, H] = LADDER[+sel.value];
-      cin.width = W; cin.height = H; cout.width = W - KW + 1; cout.height = H - KH + 1;
-      base = document.createElement("canvas"); base.width = W; base.height = H;
-      const bg = base.getContext("2d");
-      if (userImg) {
-        const s = Math.max(W / userImg.width, H / userImg.height);
-        bg.drawImage(userImg, (W - userImg.width * s) / 2, (H - userImg.height * s) / 2, userImg.width * s, userImg.height * s);
-      } else bg.drawImage(testPattern(W, H), 0, 0);
-      const px = bg.getImageData(0, 0, W, H).data;
-      gray = new Float32Array(W * H);
-      for (let i = 0; i < W * H; i++) gray[i] = (0.2126 * px[4 * i] + 0.7152 * px[4 * i + 1] + 0.0722 * px[4 * i + 2]) / 255;
-      $("#conv-in-dim").textContent = `${W}×${H}`;
-      $("#conv-out-dim").textContent = `${W - 2}×${H - 2}`;
-      numbers();
-      wall();
-      restart();
-    }
+    let W = 1280, H = 720;
 
     function numbers() {
       const db = directBytes(H, W), sb = streamBytes(W);
@@ -367,59 +447,12 @@
       });
     });
 
-    function drawInput() {
-      xin.drawImage(base, 0, 0);
-      const rh = cin.getBoundingClientRect().height || 1;
-      const minRows = Math.max(KH, Math.ceil((H / rh) * 6));
-      const top = Math.min(row, H - KH), band = Math.max(KH, minRows);
-      xin.fillStyle = "rgba(252,246,240,0.72)";
-      xin.fillRect(0, 0, W, top);
-      xin.fillStyle = "rgba(224,83,31,0.34)";
-      xin.fillRect(0, top + KH / 2 - band / 2, W, band);
-      xin.strokeStyle = "#e0531f";
-      xin.lineWidth = Math.max(1, H / rh);
-      xin.strokeRect(0, top + KH / 2 - band / 2, W, band);
+    function load() {
+      [W, H] = LADDER[+sel.value];
+      numbers();
+      wall();
     }
-    function computeRow(r) {
-      const ow = W - KW + 1, d = outImg.data;
-      for (let c = 0; c < ow; c++) {
-        const a = r * W + c, b = a + W, e = b + W;
-        const v = -gray[a] + gray[a + 2] - 2 * gray[b] + 2 * gray[b + 2] - gray[e] + gray[e + 2];
-        const k = Math.min(1, Math.sqrt(Math.abs(v) / 4) * 1.4), o = 4 * (r * ow + c);
-        d[o] = 255 - 220 * k; d[o + 1] = 251 - 230 * k; d[o + 2] = 247 - 231 * k; d[o + 3] = 255;
-      }
-      xout.putImageData(outImg, 0, 0, 0, r, ow, 1);
-    }
-    function restart() {
-      cancelAnimationFrame(raf);
-      row = 0;
-      outImg = xout.createImageData(W - KW + 1, H - KH + 1);
-      xout.fillStyle = "#fffbf7"; xout.fillRect(0, 0, cout.width, cout.height);
-      const rowsOut = H - KH + 1;
-      if (reduceMotion) {
-        for (let r = 0; r < rowsOut; r++) computeRow(r);
-        row = Math.floor(rowsOut / 2); drawInput(); $("#conv-row").textContent = `${rowsOut} of ${rowsOut}`;
-        return;
-      }
-      const perFrame = Math.max(1, Math.round(rowsOut / 200));
-      const tick = () => {
-        for (let k = 0; k < perFrame && row < rowsOut; k++, row++) computeRow(row);
-        drawInput();
-        $("#conv-row").textContent = `${Math.min(row, rowsOut)} of ${rowsOut}`;
-        if (row < rowsOut) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }
-
     sel.addEventListener("change", load);
-    $("#conv-replay").addEventListener("click", restart);
-    $("#conv-file").addEventListener("change", (ev) => {
-      const f = ev.target.files && ev.target.files[0];
-      if (!f) return;
-      const url = URL.createObjectURL(f), img = new Image();
-      img.onload = () => { userImg = img; load(); URL.revokeObjectURL(url); };
-      img.src = url;
-    });
     load();
   })();
 
@@ -714,10 +747,15 @@
       muts.forEach((m) => {
         const t = m.target.nodeType === 1 ? m.target : m.target.parentElement;
         const host = t && t.closest(".ro-v, .ro-note, .compare td");
-        if (host && !seen.has(host)) { seen.add(host); host.classList.remove("bump"); void host.offsetWidth; host.classList.add("bump"); }
+        if (!host || seen.has(host)) return;
+        seen.add(host);
+        // Only a value that really changed settles in; rewriting the same text stays still.
+        if (host.dataset.v === host.textContent) return;
+        host.dataset.v = host.textContent;
+        host.classList.remove("bump"); void host.offsetWidth; host.classList.add("bump");
       });
     });
-    $$(".ro-v, .ro-note, .compare td").forEach((n) => mo.observe(n, { childList: true, characterData: true, subtree: true }));
+    $$(".ro-v, .ro-note, .compare td").forEach((n) => { n.dataset.v = n.textContent; mo.observe(n, { childList: true, characterData: true, subtree: true }); });
 
     if (reduce) return;
     // Reveal only what starts below the fold; nothing on the first screen is ever hidden.

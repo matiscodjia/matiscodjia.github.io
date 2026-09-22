@@ -362,25 +362,47 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
       <div class="demo" id="conv-demo">
         <div class="demo-head">
           <span class="ico ico-sm" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-live"/></svg></span></span>
-          <span class="demo-title">Live · streaming convolution <span class="tag tag-web" data-t="web">LIVE</span></span>
-          <span class="demo-where">Your browser filters the frame row by row, the way ConvStreaming does. Byte counts use directConv's exact formulas; chip times are projected from cycle counts measured on the board.</span>
+          <span class="demo-title">Video lab · rendered by directConv <span class="tag tag-host" data-t="host">HOST</span> <span class="tag tag-proj" data-t="proj">PROJ</span></span>
+          <span class="demo-where">directConv's own lab, replayed. Every frame below was filtered by frugal_ml's Rust kernels through PyO3 and checked identical to numpy's output. Frames the chip wouldn't have had time for are dropped, using cycle counts measured on the board.</span>
+        </div>
+        <div class="scen" role="group" aria-label="Scenario">
+          <button type="button" class="chip" data-s="fits" aria-pressed="false"><b>1</b>It fits</button>
+          <button type="button" class="chip" data-s="wall" aria-pressed="false"><b>2</b>The wall</button>
+          <button type="button" class="chip" data-s="shrink" aria-pressed="false"><b>3</b>Shrink it</button>
+          <button type="button" class="chip" data-s="stream" aria-pressed="true"><b>4</b>Stream it</button>
+          <button type="button" class="chip" data-s="mac" aria-pressed="false"><b>5</b>On a computer</button>
+        </div>
+        <p class="scen-say" id="dc-say" aria-live="polite"></p>
+        <div class="vids" id="dc-vids">
+          <figure data-k="original"><div class="vbox"><video muted loop playsinline preload="none" aria-label="Input video, luminance"></video></div><figcaption><b>Input</b> · luminance</figcaption></figure>
+          <figure data-k="edges"><div class="vbox"><video muted loop playsinline preload="none" aria-label="Sobel-x edges computed by frugal_ml"></video><div class="nope" hidden></div></div><figcaption><b>Edges</b> · Sobel-x</figcaption></figure>
+          <figure data-k="blur"><div class="vbox"><video muted loop playsinline preload="none" aria-label="Gaussian blur computed by frugal_ml"></video><div class="nope" hidden></div></div><figcaption><b>Blur</b> · Gaussian</figcaption></figure>
+        </div>
+        <div class="strip-wrap">
+          <div class="strip-head">
+            <span id="dc-kept">–</span>
+            <span class="strip-key"><span><i class="k-on"></i>processed</span><span><i class="k-off"></i>dropped, last result held</span></span>
+            <button class="btn btn-quiet" type="button" id="dc-play" aria-pressed="false"><span class="ico-play"></span><span>Play</span></button>
+          </div>
+          <svg class="strip" id="dc-strip" role="img" aria-label="Which of the clip's frames the device processes"></svg>
+        </div>
+        <div class="readouts">
+          <div class="ro"><span class="ro-k">Frame size</span><span class="ro-v" id="dc-size">–</span><span class="ro-note" id="dc-size-note"></span></div>
+          <div class="ro"><span class="ro-k">Memory for tensors</span><span class="ro-v" id="dc-mem">–</span><span class="ro-note" id="dc-mem-note"></span></div>
+          <div class="ro"><span class="ro-k">Time per frame</span><span class="ro-v" id="dc-time">–</span><span class="ro-note" id="dc-time-note"></span></div>
+        </div>
+        <p class="demo-foot">Clip: Big Buck Bunny, 10&nbsp;s excerpt at 1280×720, 30&nbsp;fps, © 2008 Blender Foundation, <a href="https://peach.blender.org" target="_blank" rel="noopener">peach.blender.org</a>, <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Rendered with <code>scripts/render_directconv.py</code>, which calls directConv's own <code>runner.run</code> and <code>runner.play</code>; videos re-encoded for the web.</p>
+      </div>
+
+      <div class="demo" id="wall-demo">
+        <div class="demo-head">
+          <span class="ico ico-sm" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-frame"/></svg></span></span>
+          <span class="demo-title">Any frame size · the memory wall <span class="tag tag-exact" data-t="exact">EXACT</span> <span class="tag tag-proj" data-t="proj">PROJ</span></span>
+          <span class="demo-where">Bytes from directConv's exact formulas; chip times projected from cycle counts measured on the board.</span>
         </div>
         <div class="controls">
           <div class="ctl"><label for="conv-size">Frame size</label>
             <select id="conv-size"></select></div>
-          <label class="btn btn-quiet" for="conv-file">Use your own image</label>
-          <input class="vh" type="file" id="conv-file" accept="image/*">
-          <button class="btn btn-quiet" type="button" id="conv-replay">Replay</button>
-        </div>
-        <div class="canvas-pair">
-          <figure>
-            <canvas id="conv-in" width="1280" height="720" aria-label="Input frame with the rows currently held in memory highlighted"></canvas>
-            <figcaption class="cap"><span>Input · rows held: <b id="conv-held">3</b></span><span id="conv-in-dim">1280×720</span></figcaption>
-          </figure>
-          <figure>
-            <canvas id="conv-out" width="1278" height="718" aria-label="Sobel-x output, filled row by row"></canvas>
-            <figcaption class="cap"><span>Sobel-x output · row <b id="conv-row">0</b></span><span id="conv-out-dim">1278×718</span></figcaption>
-          </figure>
         </div>
         <div class="compare-wrap">
           <table class="compare">
@@ -395,14 +417,14 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
         <figure class="figure">
           <div class="figure-body"><svg class="chart" id="conv-wall" role="img" aria-labelledby="conv-wall-cap"></svg></div>
           <div class="chart-legend"><span><i class="dot" style="background:var(--patina)"></i>full frame</span><span><i class="dot" style="background:var(--accent)"></i>streaming</span><span><i style="border-color:var(--ink)"></i>stack limit, predicted (121.5&nbsp;kB)</span><span><i style="border-color:var(--muted);border-top-style:dotted"></i>largest run on the board (72.2&nbsp;kB)</span></div>
-          <figcaption id="conv-wall-cap"><b>The memory wall.</b> Bytes for the input, two filters and two outputs, log scale <span class="tag tag-exact" data-t="exact">EXACT</span>. The stack limit is 126.4&nbsp;kB divided by the worst measured compiler overhead (×1.04). Above 72.2&nbsp;kB, a fit is a prediction that hasn't been run on the board yet.</figcaption>
+          <figcaption id="conv-wall-cap"><b>The memory wall.</b> Bytes for the input, two filters and two outputs, log scale. The stack limit is 126.4&nbsp;kB divided by the worst measured compiler overhead (×1.04). Above 72.2&nbsp;kB, a fit is a prediction that hasn't been run on the board yet.</figcaption>
         </figure>
       </div>
 
       <div class="aside">
-        <div class="aside-num"><span class="n">19×</span> <small>laptop, one 720p frame <span class="tag tag-host" data-t="host">HOST</span></small></div>
+        <div class="aside-num"><span class="n" id="dc-x">21×</span> <small>laptop, one 720p frame <span class="tag tag-host" data-t="host">HOST</span></small></div>
         <div>
-          <p>On a laptop (Apple M4 Pro), frugal_ml's full-frame path takes 0.55&nbsp;ms per 720p frame where numpy takes 10.7&nbsp;ms. The arithmetic isn't faster: 86&nbsp;% of numpy's time is one copy. <code>np.tensordot</code> needs a flat matrix for BLAS, so it materialises every 3×3 window, 33&nbsp;MB per frame; frugal_ml's <code>tensordot_3</code> reads the same windows through strides and never copies them.</p>
+          <p>On a laptop (Apple M4 Pro), frugal_ml's full-frame path takes <span id="dc-heap-ms">0.55</span>&nbsp;ms per 720p frame where numpy takes <span id="dc-numpy-ms">11.4</span>&nbsp;ms, and the outputs are identical. The arithmetic isn't faster: <span id="dc-copy">81</span>&nbsp;% of numpy's time is one copy. <code>np.tensordot</code> needs a flat matrix for BLAS, so it materialises every 3×3 window, <span id="dc-copy-mb">33</span>&nbsp;MB per frame; frugal_ml's <code>tensordot_3</code> reads the same windows through strides and never copies them.</p>
           <p>The gap closes as filters are added: with 16 filters numpy's single copy is shared by all of them and the two are roughly level (0.9×).</p>
         </div>
       </div>
@@ -673,6 +695,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
 </main>
 
 <script src="data/activity.js"></script>
+<script src="data/directconv.js"></script>
 <script src="assets/js/anc-core.js"></script>
 <script src="assets/js/kalman-core.js"></script>
 <script src="assets/js/charts.js"></script>
