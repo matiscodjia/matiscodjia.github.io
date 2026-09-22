@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matis Codjia</title>
+<meta name="description" content="Matis Codjia: edge machine learning and signal processing. A Rust library that trains neural networks on a microcontroller, with live demos and measured results.">
+<link rel="preload" href="assets/fonts/archivo-500-800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12h2.5l2-5.5 3 11 3-8 2.5 5 1.5-2.5H22"/></symbol>
+  <symbol id="i-frame" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 15.5l4.5-4 3.5 3 3-2.5 7 5"/><circle cx="15.5" cy="9" r="1.6"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><path d="M12 20a8 8 0 1 1 8-8"/><path d="M12 16a4 4 0 1 1 4-4"/><path d="M12 12l6.5-6.5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+  <symbol id="i-spectrum" viewBox="0 0 24 24"><path d="M4 19v-6M8 19V7M12 19v-9M16 19V5M20 19v-4"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9.5 3v3.5M14.5 3v3.5M9.5 17.5V21M14.5 17.5V21M3 9.5h3.5M3 14.5h3.5M17.5 9.5H21M17.5 14.5H21"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18h6.3a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7h6.3"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5v4.5c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-4.5"/><path d="M21.5 9.5v5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M4 7.5l8 5.5 8-5.5"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M9 7.5L4.5 12 9 16.5M15 7.5l4.5 4.5-4.5 4.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-live" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/></symbol>
+</svg>
+
+<header class="mast">
+  <div class="mast-in">
+    <a class="mast-id" href="#top">Matis Codjia</a>
+    <nav aria-label="Sections">
+      <a href="#core">frugal_ml</a>
+      <a href="#anc">Sound</a>
+      <a href="#conv">Image</a>
+      <a href="#sentinel">Sentinel</a>
+      <a href="#classifhear">Classifhear</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#background">Background</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <span class="mast-rev">Rev. 2026.09 · synced <span data-synced>2026-09-23</span></span>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+
+  <!-- ── Front page ─────────────────────────────────── -->
+  <section class="front" aria-labelledby="name">
+    <div>
+      <p class="kicker"><span>Edge ML</span><span>Signal processing</span><span>Physical AI</span></p>
+      <h1 class="name" id="name"><span>Matis</span><span>Codjia</span></h1>
+      <p class="lede">I build machine learning for the device that holds the sensor. My core library trains neural networks on a 128&nbsp;KB microcontroller, forward pass, backward pass and weight update, and every result on this page says where and how it was measured.</p>
+      <p class="availability">
+        <span><span class="pulse" aria-hidden="true"></span><strong>Available for a 6-month end-of-studies internship</strong></span>
+        <span>Feb–Jul 2027 · outside France</span>
+        <span>EPITA, M2 research track · graduating 2027</span>
+      </p>
+      <p class="front-links">
+        <a href="https://github.com/matiscodjia" target="_blank" rel="noopener">github.com/matiscodjia ↗</a>
+        <a href="https://crates.io/crates/frugal_ml" target="_blank" rel="noopener">frugal_ml on crates.io ↗</a>
+        <a href="#contact">Contact</a>
+      </p>
+    </div>
+    <div class="features">
+      <h2>Features</h2>
+      <ul>
+        <li><span><b>Learns on the chip.</b> Forward, backward and SGD run on a Cortex-M4F, not just inference of a frozen model.</span></li>
+        <li><span><b>No heap, no std, no runtime.</b> The network is a Rust type; a shape mismatch is a compile error.</span></li>
+        <li><span><b>Measured on the board.</b> Cycle counts from the DWT counter over ST-Link, with the conditions next to every number.</span></li>
+        <li><span><b>One core, three kinds of signal.</b> Sound, images and time-of-flight range, all aimed at the same 128&nbsp;KB.</span></li>
+        <li><span><b>Limits written down.</b> What doesn't work yet sits next to the results, not after them.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="figures" aria-label="Key figures">
+    <div class="fig">
+      <div class="fig-val"><span class="n">3.42&nbsp;µs</span> <span class="tag tag-chip" data-t="chip">CHIP</span></div>
+      <p class="fig-label"><b>One full training step</b> (forward + backward + update) of a 16-tap adaptive filter on a 168&nbsp;MHz Cortex-M4F. 8&nbsp;kHz audio allows 125&nbsp;µs: a 36.5× margin.</p>
+    </div>
+    <div class="fig">
+      <div class="fig-val"><span class="n">0&nbsp;B</span> <small>of heap</small> <span class="tag tag-exact" data-t="exact">EXACT</span></div>
+      <p class="fig-label"><b>No allocator anywhere in frugal_ml.</b> Every tensor and every layer is sized at compile time, so the whole network lives on the stack.</p>
+    </div>
+    <div class="fig">
+      <div class="fig-val"><span class="n">2.5×</span> <span class="tag tag-chip" data-t="chip">CHIP</span></div>
+      <p class="fig-label"><b>Stack the compiler really reserves</b> versus the naive estimate for the same network (118.8 vs 50.5&nbsp;KB), found by bisecting crashes on the board.</p>
+    </div>
+  </section>
+
+  <p class="legend-strip">
+    <span>Every figure is tagged</span>
+    <span><span class="tag tag-chip" data-t="chip">CHIP</span> measured on the STM32F446RE</span>
+    <span><span class="tag tag-host" data-t="host">HOST</span> measured on a laptop</span>
+    <span><span class="tag tag-proj" data-t="proj">PROJ</span> projected from on-chip cycle counts</span>
+    <span><span class="tag tag-exact" data-t="exact">EXACT</span> computed from sizes</span>
+    <span><span class="tag tag-sim" data-t="sim">SIM</span> simulation</span>
+    <span><span class="tag tag-web" data-t="web">LIVE</span> computed in your browser</span>
+  </p>
+
+  <!-- ── Block diagram ──────────────────────────────── -->
+  <section class="system" aria-labelledby="system-h">
+    <div class="system-head">
+      <h2 id="system-h">One core, three kinds of signal</h2>
+      <p>Every project here is built on the same no_std Rust library and aimed at the same chip. Solid boxes have run on hardware; dashed ones haven't yet.</p>
+    </div>
+    <div class="bd">
+      <div class="bd-apps">
+        <a class="bd-app" href="#anc" data-state="live">
+          <span class="ico" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-wave"/></svg></span></span>
+          <span class="bd-sig">Sound</span>
+          <h3>Adaptive noise cancellation</h3>
+          <p>One neuron learns to subtract engine noise, one sample at a time.</p>
+          <span class="bd-state"><span class="st st-live"></span>Ran on the STM32</span>
+        </a>
+        <a class="bd-app" href="#conv" data-state="part">
+          <span class="ico" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-frame"/></svg></span></span>
+          <span class="bd-sig">Image</span>
+          <h3>directConv</h3>
+          <p>3×3 convolution for frames that don't fit in 128&nbsp;KB.</p>
+          <span class="bd-state"><span class="st st-part"></span>Kernels measured on the STM32</span>
+        </a>
+        <a class="bd-app" href="#sentinel" data-state="progress">
+          <span class="ico" style="--h:var(--accent-2)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-radar"/></svg></span></span>
+          <span class="bd-sig">Range</span>
+          <h3>Sentinel</h3>
+          <p>Time-of-flight radar on a pan-tilt arm, Kalman tracking on the MCU.</p>
+          <span class="bd-state"><span class="st st-progress"></span>In progress</span>
+        </a>
+        <a class="bd-app" href="#classifhear" data-state="start">
+          <span class="ico" style="--h:var(--plum)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-spectrum"/></svg></span></span>
+          <span class="bd-sig">Sound</span>
+          <h3>Classifhear</h3>
+          <p>Urban sound classification, headed for the edge.</p>
+          <span class="bd-state"><span class="st st-start"></span>Just started</span>
+        </a>
+      </div>
+      <div class="bd-wires" aria-hidden="true"><span></span><span></span><span class="dashed"></span><span class="dashed"></span></div>
+      <a class="bd-core" href="#core">
+        <span class="ico ico-lg" style="--h:var(--accent)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-chip"/></svg></span></span>
+        <h3>frugal_ml</h3>
+        <p>Rust · no_std · zero heap · compile-time shapes · reverse-mode autodiff · SGD · streaming convolution</p>
+      </a>
+      <div class="bd-hw">
+        <span><b>STM32F446RE</b></span>
+        <span>Cortex-M4F with FPU</span>
+        <span>168&nbsp;MHz</span>
+        <span>128&nbsp;KB RAM · 126.4&nbsp;KB of it usable as stack</span>
+        <span>probe-rs + DWT cycle counter</span>
+      </div>
+    </div>
+    <p class="bd-key">
+      <span><span class="st st-live"></span> ran on hardware</span>
+      <span><span class="st st-part"></span> partly on hardware</span>
+      <span><span class="st st-progress"></span> in progress</span>
+      <span><span class="st st-start"></span> just started</span>
+    </p>
+  </section>
+
+  <!-- ── frugal_ml ──────────────────────────────────── -->
+  <section class="sheet" id="core" aria-labelledby="core-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--accent)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-chip"/></svg></span></span>
+      <p class="rail-label">Core library</p>
+      <p class="rail-state"><span class="st st-live"></span>Runs on hardware</p>
+      <dl>
+        <dt>Language</dt><dd>Rust, no_std</dd>
+        <dt>Target</dt><dd>Cortex-M4F</dd>
+        <dt>Version</dt><dd>0.1.1</dd>
+        <dt>Since</dt><dd data-first="frugal_ml">Apr 2026</dd>
+        <dt>Commits</dt><dd data-commits="frugal_ml">67</dd>
+      </dl>
+      <p class="rail-links">
+        <a href="https://github.com/matiscodjia/frugal_ml" target="_blank" rel="noopener">Source ↗</a>
+        <a href="https://github.com/matiscodjia/frugal_ml/blob/main/docs/BENCHMARKS.md" target="_blank" rel="noopener">Benchmarks ↗</a>
+        <a href="https://crates.io/crates/frugal_ml" target="_blank" rel="noopener">crates.io ↗</a>
+      </p>
+    </aside>
+    <div class="main">
+      <header>
+        <h2 id="core-h"><code>frugal_ml</code></h2>
+        <p class="sub">Linear algebra and reverse-mode autodiff that train small neural networks on a microcontroller, with no heap and no runtime.</p>
+      </header>
+      <div class="prose">
+        <p>Most machine learning on microcontrollers is inference only: train on a GPU, freeze the weights, flash them. The device can never adapt to its own sensor, its own noise or its own drift. frugal_ml runs the backward pass and the weight update on the chip as well.</p>
+        <p>Without a heap there is nowhere to keep the usual autodiff tape, so the graph is a type instead: <code>seq!(A, B, C)</code> becomes <code>Then&lt;A, Then&lt;B, C&gt;&gt;</code>, and the compiler resolves every forward and backward call, and checks every shape, before the binary exists. Nothing is dispatched at runtime.</p>
+      </div>
+
+      <div class="code-pair">
+        <div class="code">
+          <div class="code-cap"><span>A network is a type</span><span>rust</span></div>
+<pre><span class="k">let mut</span> net = <b>seq!</b>(
+    Linear::&lt;4, 16&gt;::from_seed(42),
+    Tanh::&lt;16&gt; {},
+    Linear::&lt;16, 3&gt;::from_seed(137),
+    Softmax::&lt;3&gt; {}
+);
+
+<span class="c">// one training step, entirely on the device</span>
+<span class="k">let</span> (out, ctx)   = net.forward(input);
+<span class="k">let</span> (loss, grad) = cross_entropy(out, target);
+<span class="k">let</span> (_, grads)   = net.backward(grad, &amp;ctx);
+sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
+        </div>
+        <div class="code">
+          <div class="code-cap"><span>A shape mismatch doesn't compile</span><span>rustc</span></div>
+<pre><span class="err">error[E0599]</span>: the method `forward` exists for struct
+  `Then&lt;Linear&lt;4, 16&gt;, Then&lt;Tanh&lt;16&gt;,
+     Then&lt;<span class="err">Linear&lt;8, 3&gt;</span>, Softmax&lt;3&gt;&gt;&gt;&gt;`,
+  but its trait bounds were not satisfied
+
+  = note: the following trait bounds were
+    not satisfied:
+    `Then&lt;Tanh&lt;16&gt;, Then&lt;Linear&lt;8, 3&gt;,
+       Softmax&lt;3&gt;&gt;&gt;: Module&lt;Tensor&lt;16, 1&gt;&gt;`</pre>
+          <p class="code-foot">Real compiler output (abridged) for the same network with its third layer declared <code>Linear::&lt;8, 3&gt;</code>. In PyTorch the same mistake is a runtime error, on the device.</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="h">Characteristics</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Parameter</th><th>Conditions</th><th>Value</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Training step, 16-tap ADALINE<br>(forward + backward + SGD)</td><td class="cond">STM32F446RE at 168&nbsp;MHz, f32, DWT cycle counter around the step</td><td class="v">575 cycles · 3.42&nbsp;µs</td><td class="src"><span class="tag tag-chip" data-t="chip">CHIP</span></td></tr>
+              <tr><td>Real-time margin</td><td class="cond">8&nbsp;kHz audio, 125&nbsp;µs per sample</td><td class="v">36.5×</td><td class="src"><span class="tag tag-chip" data-t="chip">CHIP</span></td></tr>
+              <tr><td>MLP trained entirely on the chip</td><td class="cond">64 → 64 → 32 → 10, 300 epochs, synthetic 10-class data generated on the chip; training-set accuracy</td><td class="v">300 / 300</td><td class="src"><span class="tag tag-chip" data-t="chip">CHIP</span></td></tr>
+              <tr><td>Stack available · reserved</td><td class="cond">Linker symbols · prologue of the MLP build above</td><td class="v">126.4 · 118.8&nbsp;KB</td><td class="src"><span class="tag tag-chip" data-t="chip">CHIP</span></td></tr>
+              <tr><td>Unchecked tensor indexing</td><td class="cond">Isolated 1×16 · 16×1 matmul · full training step. On a branch, not merged yet</td><td class="v">1.25× · −8.0&nbsp;% cycles</td><td class="src"><span class="tag tag-chip" data-t="chip">CHIP</span></td></tr>
+              <tr><td>Gradient check</td><td class="cond">Every analytic gradient vs centered finite differences, f32, ε&nbsp;=&nbsp;1e-4</td><td class="v">mean rel. error ≈ 6e-4</td><td class="src"><span class="tag tag-host" data-t="host">HOST</span></td></tr>
+              <tr><td>Heap allocations</td><td class="cond">Whole crate, bare-metal build (thumbv7em-none-eabihf)</td><td class="v">0</td><td class="src"><span class="tag tag-exact" data-t="exact">EXACT</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <figure class="figure">
+        <div class="figure-body"><svg class="chart" id="ram-chart" role="img" aria-labelledby="ram-cap"></svg></div>
+        <figcaption id="ram-cap"><b>Where the RAM goes.</b> 64 → 64 → 32 → 10 network, training on the chip. When the whole forward/backward chain inlines into one function, its stack frame is sized once, for every intermediate value at the same time: 2.5× the naive count. Forcing one frame per layer made it worse, because the optimizer could no longer reuse short-lived values across layers. Adding 4&nbsp;% more parameters crashed the board (MemManage fault). The planned fix is an API change: layers write into a buffer the caller provides instead of returning by value.</figcaption>
+      </figure>
+
+      <div>
+        <h3 class="h">Known limits</h3>
+        <ul class="limits">
+          <li><b>Static architectures only</b><span>Nothing in the graph can depend on a runtime value: no early exit, no per-sample routing.</span></li>
+          <li><b>Sequential chains only</b><span><code>Then</code> can't express a value used twice, so no skip connections (ResNet) yet.</span></li>
+          <li><b>SGD only, on purpose</b><span>Adam's two moment buffers would double the optimizer's RAM. Momentum, one buffer, comes first.</span></li>
+          <li><b>Convolution is inference-only</b><span>The streaming convolution works, but it isn't a trainable layer yet.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ANC ────────────────────────────────────────── -->
+  <section class="sheet" id="anc" aria-labelledby="anc-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-wave"/></svg></span></span>
+      <p class="rail-label">Demo · Sound</p>
+      <p class="rail-state"><span class="st st-live"></span>Ran on the STM32</p>
+      <dl>
+        <dt>Model</dt><dd>Linear&lt;16, 1&gt;</dd>
+        <dt>Rule</dt><dd>LMS, Widrow–Hoff 1960</dd>
+        <dt>Chip run</dt><dd>3,000 samples at 8&nbsp;kHz</dd>
+      </dl>
+      <p class="rail-links">
+        <a href="https://github.com/matiscodjia/ferrite-embedded/blob/main/src/bin/adaline_anc.rs" target="_blank" rel="noopener">Firmware ↗</a>
+        <a href="https://github.com/matiscodjia/frugal_ml/blob/main/docs/images/adaline_anc_results.png" target="_blank" rel="noopener">Chip run, full plot ↗</a>
+        <a href="https://github.com/matiscodjia/adalineDemo" target="_blank" rel="noopener">Demo app ↗</a>
+      </p>
+    </aside>
+    <div class="main">
+      <header>
+        <h2 id="anc-h">Cancelling noise by learning it, one sample at a time</h2>
+        <p class="sub">An adaptive filter trained online on the microcontroller: the simplest case of on-device learning, and a real signal-processing tool.</p>
+      </header>
+      <div class="prose">
+        <p>A microphone hears a signal mixed with engine-like noise. A second sensor hears only the noise, through a path nobody measured. A single neuron with 16 weights learns, sample by sample, to predict the noise from that reference; subtracting its prediction leaves the signal. In frugal_ml this needs no special code: <code>Linear&lt;16, 1&gt;</code> + <code>mse</code> + <code>Sgd</code> is exactly the Widrow–Hoff LMS filter.</p>
+      </div>
+
+      <div class="demo" id="anc-demo">
+        <div class="demo-head">
+          <span class="ico ico-sm" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-live"/></svg></span></span>
+          <span class="demo-title">Live · adaptive noise canceller <span class="tag tag-web" data-t="web">LIVE</span></span>
+          <span class="demo-where">A JavaScript port of the same update rule, signals and noise generator. It matches the Python reference the Rust code is tested against, to float32 rounding.</span>
+        </div>
+        <div class="controls">
+          <div class="ctl"><label for="anc-taps">Filter length</label>
+            <select id="anc-taps"><option>4</option><option>8</option><option>12</option><option selected>16</option><option>24</option><option>32</option><option>48</option><option>64</option><option>96</option><option>128</option></select></div>
+          <div class="ctl"><label for="anc-fs">Sample rate</label>
+            <select id="anc-fs"><option value="4000">4 kHz</option><option value="8000" selected>8 kHz</option><option value="16000">16 kHz</option><option value="44100">44.1 kHz</option><option value="48000">48 kHz</option><option value="96000">96 kHz</option></select></div>
+          <div class="ctl"><label for="anc-lr">Learning rate <output id="anc-lr-out" for="anc-lr">0.0040</output></label>
+            <input type="range" id="anc-lr" min="0" max="100" step="1" value="45"></div>
+        </div>
+        <div class="play-row">
+          <button class="btn" type="button" data-play="d" aria-pressed="false"><span class="ico-play"></span>Noisy input</button>
+          <button class="btn" type="button" data-play="e" aria-pressed="false"><span class="ico-play"></span>After cancellation</button>
+          <button class="btn btn-quiet" type="button" data-play="s" aria-pressed="false"><span class="ico-play"></span>Clean signal, for reference</button>
+          <span class="hint">4&nbsp;s clips, one shared volume scale</span>
+        </div>
+        <div class="demo-grid">
+          <div class="demo-cell">
+            <p class="cell-title"><b>Residual error while learning</b><span>RMS of e − s per 25&nbsp;ms, log scale</span></p>
+            <svg class="chart" id="anc-conv" role="img" aria-label="Residual error over time"></svg>
+          </div>
+          <div class="demo-cell">
+            <p class="cell-title"><b>Last 40&nbsp;ms of the clip</b><span>output vs the clean signal</span></p>
+            <svg class="chart" id="anc-wave" role="img" aria-label="Cancelled output against clean signal"></svg>
+            <p class="chart-legend"><span><i style="border-color:var(--accent)"></i>after cancellation, e[n]</span><span><i style="border-color:var(--ink-2)"></i>clean signal, s[n]</span></p>
+          </div>
+        </div>
+        <div class="readouts">
+          <div class="ro">
+            <span class="ro-k">Correlation of the estimate with the true noise, first 10&nbsp;ms → last 40&nbsp;ms</span>
+            <span class="ro-v" id="anc-corr">–</span>
+            <span class="ro-note">On the chip: 0.549 → 0.986 <span class="tag tag-chip" data-t="chip">CHIP</span></span>
+          </div>
+          <div class="ro">
+            <span class="ro-k">Residual error, RMS of e − s, same windows</span>
+            <span class="ro-v" id="anc-rms">–</span>
+            <span class="ro-note">On the chip: 0.398 → 0.074 <span class="tag tag-chip" data-t="chip">CHIP</span></span>
+          </div>
+          <div class="ro">
+            <span class="ro-k">One step on the STM32F446RE, against the time between two samples</span>
+            <span class="ro-v" id="anc-chip">–</span>
+            <div class="meter" aria-hidden="true"><div class="meter-fill" id="anc-meter"></div><div class="meter-mark" style="left:0"></div></div>
+            <span class="ro-note" id="anc-chip-note">–</span>
+          </div>
+        </div>
+        <p class="demo-foot">The chip was measured at 16 taps only (575 cycles). Other lengths are projected on a straight line through that point: with a single output, forward, backward and update are each one pass over the taps, so the cost is linear by construction. The chip's run was 375&nbsp;ms long, so its "converged" window is 335–375&nbsp;ms. Push to 128 taps at 96&nbsp;kHz and the chip can no longer keep up.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── directConv ─────────────────────────────────── -->
+  <section class="sheet" id="conv" aria-labelledby="conv-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-frame"/></svg></span></span>
+      <p class="rail-label">Demo · Image</p>
+      <p class="rail-state"><span class="st st-part"></span>Kernels measured on the STM32</p>
+      <dl>
+        <dt>Kernel</dt><dd>3×3, stride 1, f32</dd>
+        <dt>Filters</dt><dd>Sobel-x + Gaussian</dd>
+        <dt>Bindings</dt><dd>PyO3, Python → Rust</dd>
+        <dt>Tests</dt><dd>101</dd>
+      </dl>
+      <p class="rail-links">
+        <a href="https://github.com/matiscodjia/directConv" target="_blank" rel="noopener">Source ↗</a>
+        <a href="https://github.com/matiscodjia/ferrite-embedded/tree/main/src/bin" target="_blank" rel="noopener">On-chip benches ↗</a>
+      </p>
+    </aside>
+    <div class="main">
+      <header>
+        <h2 id="conv-h">When the frame doesn't fit: convolution in 128&nbsp;KB</h2>
+        <p class="sub">The same 3×3 convolution held in memory four ways, against a chip whose whole stack is 126.4&nbsp;KB.</p>
+      </header>
+      <div class="prose">
+        <p>A 1280×720 frame, two filters and their outputs take 11&nbsp;MB: 91 times what the chip can hold. directConv drives frugal_ml from Python and compares the ways out. Keep the full frame on the stack: fast, but the largest 16:9 frame that fits is 128×72. Put it on the heap: the chip has no allocator. Shrink the frame: you lose pixels. Or stream it.</p>
+        <p>Streaming (<code>ConvStreaming</code>) keeps only the three input rows each filter needs. Memory then depends on the frame's width, not its height: 46&nbsp;kB for 1280-wide video. The price is speed, about 1.2 frames per second at 720p on the chip.</p>
+      </div>
+
+      <div class="demo" id="conv-demo">
+        <div class="demo-head">
+          <span class="ico ico-sm" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-live"/></svg></span></span>
+          <span class="demo-title">Live · streaming convolution <span class="tag tag-web" data-t="web">LIVE</span></span>
+          <span class="demo-where">Your browser filters the frame row by row, the way ConvStreaming does. Byte counts use directConv's exact formulas; chip times are projected from cycle counts measured on the board.</span>
+        </div>
+        <div class="controls">
+          <div class="ctl"><label for="conv-size">Frame size</label>
+            <select id="conv-size"></select></div>
+          <label class="btn btn-quiet" for="conv-file">Use your own image</label>
+          <input class="vh" type="file" id="conv-file" accept="image/*">
+          <button class="btn btn-quiet" type="button" id="conv-replay">Replay</button>
+        </div>
+        <div class="canvas-pair">
+          <figure>
+            <canvas id="conv-in" width="1280" height="720" aria-label="Input frame with the rows currently held in memory highlighted"></canvas>
+            <figcaption class="cap"><span>Input · rows held: <b id="conv-held">3</b></span><span id="conv-in-dim">1280×720</span></figcaption>
+          </figure>
+          <figure>
+            <canvas id="conv-out" width="1278" height="718" aria-label="Sobel-x output, filled row by row"></canvas>
+            <figcaption class="cap"><span>Sobel-x output · row <b id="conv-row">0</b></span><span id="conv-out-dim">1278×718</span></figcaption>
+          </figure>
+        </div>
+        <div class="compare-wrap">
+          <table class="compare">
+            <thead><tr><th></th><th>Full frame on the stack</th><th>Streaming, 3 rows per filter</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Memory for tensors</th><td id="conv-mem-d">–</td><td id="conv-mem-s">–</td></tr>
+              <tr><th scope="row">Fits the chip's stack?</th><td id="conv-fit-d">–</td><td id="conv-fit-s">–</td></tr>
+              <tr><th scope="row">Time per frame on the chip</th><td id="conv-t-d">–</td><td id="conv-t-s">–</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="figure">
+          <div class="figure-body"><svg class="chart" id="conv-wall" role="img" aria-labelledby="conv-wall-cap"></svg></div>
+          <div class="chart-legend"><span><i class="dot" style="background:var(--patina)"></i>full frame</span><span><i class="dot" style="background:var(--accent)"></i>streaming</span><span><i style="border-color:var(--ink)"></i>stack limit, predicted (121.5&nbsp;kB)</span><span><i style="border-color:var(--muted);border-top-style:dotted"></i>largest run on the board (72.2&nbsp;kB)</span></div>
+          <figcaption id="conv-wall-cap"><b>The memory wall.</b> Bytes for the input, two filters and two outputs, log scale <span class="tag tag-exact" data-t="exact">EXACT</span>. The stack limit is 126.4&nbsp;kB divided by the worst measured compiler overhead (×1.04). Above 72.2&nbsp;kB, a fit is a prediction that hasn't been run on the board yet.</figcaption>
+        </figure>
+      </div>
+
+      <div class="aside">
+        <div class="aside-num"><span class="n">19×</span> <small>laptop, one 720p frame <span class="tag tag-host" data-t="host">HOST</span></small></div>
+        <div>
+          <p>On a laptop (Apple M4 Pro), frugal_ml's full-frame path takes 0.55&nbsp;ms per 720p frame where numpy takes 10.7&nbsp;ms. The arithmetic isn't faster: 86&nbsp;% of numpy's time is one copy. <code>np.tensordot</code> needs a flat matrix for BLAS, so it materialises every 3×3 window, 33&nbsp;MB per frame; frugal_ml's <code>tensordot_3</code> reads the same windows through strides and never copies them.</p>
+          <p>The gap closes as filters are added: with 16 filters numpy's single copy is shared by all of them and the two are roughly level (0.9×).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Sentinel ───────────────────────────────────── -->
+  <section class="sheet" id="sentinel" aria-labelledby="sentinel-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--accent-2)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-radar"/></svg></span></span>
+      <p class="rail-label">In progress · Range</p>
+      <p class="rail-state"><span class="st st-progress"></span>In progress</p>
+      <dl>
+        <dt>Sensor</dt><dd>VL53L5CX, 8×8 ToF</dd>
+        <dt>Arm</dt><dd>Pan-tilt, 2 servos</dd>
+        <dt>Filter</dt><dd>9-state Kalman</dd>
+        <dt>Repo since</dt><dd data-first="sentinel">Sep 2026</dd>
+      </dl>
+      <p class="rail-links">
+        <a href="https://github.com/matiscodjia/sentinel" target="_blank" rel="noopener">Source ↗</a>
+      </p>
+    </aside>
+    <div class="main">
+      <header>
+        <h2 id="sentinel-h">Sentinel: a time-of-flight radar that tracks what moves</h2>
+        <p class="sub">No camera. An 8×8 depth sensor on a pan-tilt arm scans, separates moving objects from the background, locks onto one and tracks it, with the whole estimation loop on the microcontroller.</p>
+      </header>
+      <div class="prose">
+        <p>The sensor sees in 64 cones of about 5.6° each, which fixes a trade-off no software removes: at a few metres a moving object is a coarse blob, as it would be for a real radar, and fine contours such as the fingers of a hand only resolve at 20 to 30&nbsp;cm. So the plan has two modes: a fast wide scan for detection and tracking, and a slow fine raster on a close target.</p>
+        <p>Everything is written from the datasheet up: servo PWM, the I²C sensor driver, clustering, the Kalman filter on frugal_ml tensors, the serial protocol, and a software 3D renderer on the Mac side.</p>
+      </div>
+
+      <div>
+        <h3 class="h">Plan and status</h3>
+        <ol class="plan">
+          <li><span class="st st-part"></span><b>Drive the pan-tilt arm</b><span class="d">PWM on the STM32; one servo sweeping, second axis next</span></li>
+          <li><span class="st st-start"></span><b>Read the VL53L5CX</b><span class="d">I²C driver written from the register map</span></li>
+          <li><span class="st st-start"></span><b>Point cloud</b><span class="d">pan, tilt, distance → x, y, z</span></li>
+          <li><span class="st st-start"></span><b>Moving vs static</b><span class="d">per-direction background map</span></li>
+          <li><span class="st st-start"></span><b>Clustering</b><span class="d">fixed-memory voxel grid into blobs</span></li>
+          <li><span class="st st-start"></span><b>Target lock</b><span class="d">nearest, fastest or first seen, with hysteresis</span></li>
+          <li><span class="st st-part"></span><b>Kalman on the MCU</b><span class="d">filter written on frugal_ml tensors and run in simulation, not on the chip yet</span></li>
+          <li><span class="st st-start"></span><b>Fine-scan mode</b><span class="d">sub-zone raster on a close target</span></li>
+          <li><span class="st st-start"></span><b>MCU → Mac protocol</b><span class="d">framed binary over UART, 2&nbsp;Mbaud measured on this board</span></li>
+          <li><span class="st st-start"></span><b>3D renderer</b><span class="d">projection, rasterisation, z-buffer by hand</span></li>
+          <li><span class="st st-start"></span><b>Live end-to-end demo</b><span class="d">scan, lock, track, render</span></li>
+        </ol>
+        <p class="plan-key" style="margin-top:10px"><span><span class="st st-part"></span>started</span><span><span class="st st-start"></span>planned</span><span>Also started: a ray-casting digital twin of the sensor (plane, sphere and triangle intersection).</span></p>
+      </div>
+
+      <div class="demo" id="kf-demo">
+        <div class="demo-head">
+          <span class="ico ico-sm" style="--h:var(--accent-2)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-live"/></svg></span></span>
+          <span class="demo-title">Live · the tracking filter <span class="tag tag-web" data-t="web">LIVE</span> <span class="tag tag-sim" data-t="sim">SIM</span></span>
+          <span class="demo-where">A JavaScript port of sentinel-core's filter and sentinel-sim's trajectories: same matrices, same 20&nbsp;Hz step, 10&nbsp;s of flight.</span>
+        </div>
+        <div class="controls">
+          <div class="ctl"><label for="kf-sc">Trajectory</label>
+            <select id="kf-sc"><option value="looping" selected>Looping</option><option value="parabolic">Mortar shot with crosswind</option><option value="chaotic">Erratic</option><option value="linear">Straight line</option></select></div>
+          <div class="ctl"><label for="kf-sigma">Sensor noise σ <output id="kf-sigma-out" for="kf-sigma">0.70 m</output></label>
+            <input type="range" id="kf-sigma" min="0.2" max="3" step="0.1" value="0.7"></div>
+          <div class="ctl"><label for="kf-q">Process noise q <output id="kf-q-out" for="kf-q">0.050</output></label>
+            <input type="range" id="kf-q" min="-3" max="1" step="0.05" value="-1.30103"></div>
+          <button class="btn btn-quiet" type="button" id="kf-redraw">New noise draw</button>
+        </div>
+        <div class="demo-grid">
+          <div class="demo-cell">
+            <p class="cell-title"><b>Side view</b><span>distance x vs altitude z, metres</span></p>
+            <svg class="chart" id="kf-plot" role="img" aria-label="True trajectory, noisy measurements and filtered estimate"></svg>
+            <p class="chart-legend"><span><i style="border-color:var(--ink-2)"></i>true path</span><span><i class="dot" style="background:var(--patina)"></i>sensor readings</span><span><i style="border-color:var(--accent)"></i>filter estimate</span></p>
+          </div>
+          <div class="demo-cell">
+            <p class="cell-title"><b>Error vs q</b><span>this trajectory, 8 noise draws</span></p>
+            <svg class="chart" id="kf-sweep" role="img" aria-label="Filter position error as a function of process noise q"></svg>
+            <p class="chart-legend"><span><i style="border-color:var(--accent)"></i>filtered</span><span><i style="border-color:var(--ink-2)"></i>raw sensor</span></p>
+          </div>
+        </div>
+        <div class="readouts">
+          <div class="ro"><span class="ro-k">Position error, raw sensor (RMS, after the first second)</span><span class="ro-v" id="kf-raw">–</span></div>
+          <div class="ro"><span class="ro-k">Position error, filtered</span><span class="ro-v" id="kf-est">–</span><span class="ro-note" id="kf-verdict">–</span></div>
+          <div class="ro"><span class="ro-k">One predict + update, frugal_ml vs nalgebra</span><span class="ro-v">236 <small>vs 182 ns</small> <span class="tag tag-host" data-t="host">HOST</span></span><span class="ro-note">frugal_ml is 1.3× slower on a laptop; not measured on the chip yet.</span></div>
+        </div>
+        <p class="demo-foot">With the simulator's default q the filter lags the loop's turns and ends up worse than the raw sensor; raise q and it follows the turns but lets more noise through. The constant-acceleration model with Q&nbsp;=&nbsp;q·I is what has to improve before this filter moves onto the chip.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Classifhear ────────────────────────────────── -->
+  <section class="sheet" id="classifhear" aria-labelledby="ch-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--plum)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-spectrum"/></svg></span></span>
+      <p class="rail-label">Starting · Sound</p>
+      <p class="rail-state"><span class="st st-start"></span>Just started</p>
+      <dl>
+        <dt>Data</dt><dd>UrbanSound8K</dd>
+        <dt>Clips</dt><dd>8,732, 10 classes</dd>
+        <dt>Stage</dt><dd>Feature extraction</dd>
+        <dt>Since</dt><dd data-first="Classifhear">Sep 2026</dd>
+      </dl>
+      <p class="rail-links">
+        <a href="https://github.com/matiscodjia/Classifhear" target="_blank" rel="noopener">Source ↗</a>
+      </p>
+    </aside>
+    <div class="main">
+      <header>
+        <h2 id="ch-h">Classifhear: recognising city sounds, headed for the edge</h2>
+        <p class="sub">Sirens, drills, dog barks, engines: ten classes of urban sound, to be classified on a microcontroller in the end. For now, the groundwork: what a frame of audio is.</p>
+      </header>
+      <div class="prose">
+        <p>Three weeks in, the work is feature extraction written by hand before reaching for the library versions: amplitude envelope, RMS energy, zero-crossing rate. The first real lesson came from a test impulse: computing each value from the start of its frame shifts every curve half a frame early. Frame length and hop turned out to be the same trade-off as a convolution's kernel and stride: overlap keeps context, and costs compute.</p>
+      </div>
+
+      <div class="demo" id="fr-demo">
+        <div class="demo-head">
+          <span class="ico ico-sm" style="--h:var(--plum)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-live"/></svg></span></span>
+          <span class="demo-title">Live · framing explorer <span class="tag tag-web" data-t="web">LIVE</span></span>
+          <span class="demo-where">RMS energy and zero-crossing rate, recomputed in your browser whenever the framing changes.</span>
+        </div>
+        <div class="controls">
+          <div class="ctl"><label for="fr-src">Sound</label>
+            <select id="fr-src"><option value="impulse" selected>Impulse at 0.5 s (the notebook's test)</option><option value="bark">Bark-like bursts</option><option value="siren">Siren sweep</option><option value="file">Your own audio file…</option></select></div>
+          <div id="fr-file-wrap" hidden><label class="btn btn-quiet" for="fr-file">Choose an audio file</label><input class="vh" type="file" id="fr-file" accept="audio/*,.wav"></div>
+          <div class="ctl"><label for="fr-n">Frame length</label>
+            <select id="fr-n"><option>512</option><option>1024</option><option selected>2048</option><option>4096</option></select></div>
+          <div class="ctl"><label for="fr-hop">Hop</label>
+            <select id="fr-hop"><option>64</option><option>128</option><option selected>256</option><option>512</option><option>1024</option></select></div>
+          <label class="toggle" for="fr-center"><input type="checkbox" id="fr-center">Center frames</label>
+          <button class="btn btn-quiet" type="button" id="fr-play" aria-pressed="false"><span class="ico-play"></span>Play</button>
+        </div>
+        <div class="demo-cell">
+          <svg class="chart" id="fr-plot" role="img" aria-label="Waveform with RMS energy, and zero-crossing rate below"></svg>
+          <p class="chart-legend"><span><i style="border-color:var(--hair-strong);border-top-width:6px"></i>waveform</span><span><i style="border-color:var(--accent)"></i>RMS energy</span><span><i style="border-color:var(--patina)"></i>zero-crossing rate</span><span id="fr-mark-key"><i style="border-color:var(--plum);border-top-style:dashed"></i>where the impulse really is</span></p>
+        </div>
+        <div class="readouts">
+          <div class="ro"><span class="ro-k">Frames</span><span class="ro-v" id="fr-frames">–</span></div>
+          <div class="ro"><span class="ro-k">Window · hop</span><span class="ro-v" id="fr-win">–</span><span class="ro-note" id="fr-overlap">–</span></div>
+          <div class="ro"><span class="ro-k">RMS centre vs the impulse</span><span class="ro-v" id="fr-shift">–</span><span class="ro-note" id="fr-shift-note">–</span></div>
+        </div>
+        <p class="demo-foot">Next: log-mel spectrograms, a small CNN baseline evaluated on the dataset's ten predefined folds, then a version small enough for frugal_ml once it has a trainable convolution layer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Roadmap ────────────────────────────────────── -->
+  <section class="sheet" id="roadmap" aria-labelledby="rm-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-route"/></svg></span></span>
+      <p class="rail-label">Roadmap</p>
+      <p class="rail-state">Synced from git <span data-synced>2026-09-23</span></p>
+      <dl>
+        <dt>Commits</dt><dd data-total>84</dd>
+        <dt>Repos</dt><dd data-repos>6</dd>
+        <dt>Since</dt><dd>Apr 2026</dd>
+      </dl>
+    </aside>
+    <div class="main">
+      <header>
+        <h2 id="rm-h">Where this is going</h2>
+        <p class="sub">I'm convinced learning and inference are moving onto edge devices, next to the sensor. I want to specialise in physical AI: signal processing with machine and deep learning, under real power and memory budgets.</p>
+      </header>
+
+      <div class="phases">
+        <div class="phase">
+          <h3><span class="st st-live"></span>Now</h3>
+          <ul>
+            <li><span class="p">frugal_ml</span>Layers that write into a caller-provided buffer: the fix for the 2.5× stack gap</li>
+            <li><span class="p">frugal_ml</span>Merge unchecked indexing (−8&nbsp;% cycles per training step)</li>
+            <li><span class="p">Sentinel</span>Second servo axis, then the VL53L5CX driver</li>
+            <li><span class="p">Classifhear</span>Log-mel features and a first baseline</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <h3><span class="st st-progress"></span>Next</h3>
+          <ul>
+            <li><span class="p">frugal_ml</span>Trainable Conv2D, then MaxPool2D and Flatten</li>
+            <li><span class="p">frugal_ml</span>Momentum, and saving weights to flash</li>
+            <li><span class="p">Sentinel</span>Point cloud → motion filter → clustering → Kalman on the MCU</li>
+            <li><span class="p">Classifhear</span>A model small enough for the chip</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <h3><span class="st st-start"></span>Direction</h3>
+          <ul>
+            <li>Models that keep adapting after deployment, on the device, to their own sensor</li>
+            <li>Signal processing and learning for sound, images and range under a 128&nbsp;KB budget</li>
+            <li>The same measurement discipline for every claim: conditions, method, raw logs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="h">Activity, commits per week</h3>
+        <div class="lanes"><div class="lanes-in" id="lanes"></div></div>
+        <p class="lanes-foot"><span>Fewer <span class="ramp" id="ramp"></span> more · all branches, merges excluded</span><span>Uncommitted work doesn't show here.</span></p>
+      </div>
+
+      <div>
+        <h3 class="h">Revision history</h3>
+        <div class="changelog-wrap">
+          <table class="changelog">
+            <thead><tr><th>Date</th><th>Project</th><th>Change</th></tr></thead>
+            <tbody id="changelog"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Background ─────────────────────────────────── -->
+  <section class="sheet" id="background" aria-labelledby="bg-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-cap"/></svg></span></span>
+      <p class="rail-label">Background</p>
+      <dl>
+        <dt>School</dt><dd>EPITA</dd>
+        <dt>Lab</dt><dd>LRE</dd>
+        <dt>English</dt><dd>TOEIC 910</dd>
+      </dl>
+    </aside>
+    <div class="main">
+      <header><h2 id="bg-h">Background</h2></header>
+      <table class="cv">
+        <tbody>
+          <tr><td>2024 – 2027</td><td><b>EPITA, MEng in Computer Science</b> <span class="org">· M2, AI major, research track at the LRE lab</span><p>Machine learning, optimisation, probability, inferential statistics, linear algebra.</p></td></tr>
+          <tr><td>Jan 2025 – now</td><td><b>Student researcher</b> <span class="org">· LRE, EPITA Research Lab</span><p>A cross-evaluation protocol for medical-image segmentation (3D U-Net), with paired statistical tests across complementary metrics to separate real model improvement from noise in the data. A retrieval-augmented generation pipeline (OCR → embeddings → retrieval) benchmarked against direct prompting.</p></td></tr>
+          <tr><td>Sep 2025 – Jan 2026</td><td><b>Research intern</b> <span class="org">· LRE (EPITA) / LIP6 (Sorbonne Université, CNRS)</span><p>Automated feedback for programming education: redesigned the approach around embedding-based error detection and classification, reaching state-of-the-art results on the alignment benchmark.</p></td></tr>
+          <tr><td>May – Aug 2024</td><td><b>Research assistant</b> <span class="org">· INRIA</span><p>A reproducible bench measuring the energy use of web browsers: automated workloads, hardware power sampling, statistical comparison.</p></td></tr>
+          <tr><td>2021 – 2024</td><td><b>Université de Rennes (ISTIC), BSc in Computer Science</b></td></tr>
+        </tbody>
+      </table>
+      <div class="skills">
+        <div><b>Embedded &amp; systems</b>Rust (no_std, const generics), STM32 / Cortex-M, probe-rs, DWT cycle counting, PyO3</div>
+        <div><b>Machine learning</b>PyTorch, autodiff from scratch, CNNs (3D U-Net), evaluation with paired statistical tests</div>
+        <div><b>Signals &amp; estimation</b>Adaptive filtering (LMS), convolution, Kalman filtering, audio features</div>
+        <div><b>Maths</b>Probability, inferential statistics, optimisation, linear algebra (QR, SVD)</div>
+        <div><b>Also</b>Python scientific stack, C, Scala, Git, Docker, Linux</div>
+        <div><b>Languages</b>French (native), English (TOEIC 910)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Contact ────────────────────────────────────── -->
+  <section class="sheet" id="contact" aria-labelledby="ct-h">
+    <aside class="rail">
+      <span class="ico ico-lg" style="--h:var(--accent)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-mail"/></svg></span></span>
+      <p class="rail-label">Contact</p>
+      <p class="rail-state"><span class="pulse" aria-hidden="true"></span>Available Feb 2027</p>
+    </aside>
+    <div class="main">
+      <div class="contact">
+        <div>
+          <h2 id="ct-h" class="contact-big">Looking for a <em>6-month end-of-studies internship</em>, Feb–Jul 2027, outside France.</h2>
+          <p class="sub">Edge ML, embedded inference and training, signal processing, physical AI. Happy to walk through any number on this page.</p>
+        </div>
+        <div class="contact-lines">
+          <div><span class="ico ico-sm" style="--h:var(--accent)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-mail"/></svg></span></span><span><span class="k">Email</span><span class="v" id="email">matis.codjia@icloud.com</span></span><button class="copy" type="button" data-copy="email">Copy</button></div>
+          <div><span class="ico ico-sm" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-code"/></svg></span></span><span><span class="k">GitHub</span><span class="v"><a href="https://github.com/matiscodjia" target="_blank" rel="noopener">github.com/matiscodjia ↗</a></span></span></div>
+          <div><span class="ico ico-sm" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-pin"/></svg></span></span><span><span class="k">Based in</span><span class="v">Paris, France</span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Static page: HTML, CSS and plain JavaScript, no framework, no tracking. Figures come from the linked repositories' benchmark documents; the activity and revision history are regenerated from git by <code>scripts/sync_activity.py</code>.</p>
+    <p>Rev. 2026.09</p>
+  </footer>
+</main>
+
+<script src="data/activity.js"></script>
+<script src="assets/js/anc-core.js"></script>
+<script src="assets/js/kalman-core.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/demos.js"></script>
+</body>
+</html>
