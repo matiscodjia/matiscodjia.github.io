@@ -1,4 +1,5 @@
 // Page behaviour: provenance tooltips, git activity, the RAM figure and the four live demos.
+// Each demo pauses its media when pages.js takes its page off screen ("pagechange").
 (function () {
   "use strict";
   const $ = (s, r) => (r || document).querySelector(s);
@@ -6,6 +7,8 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const fix = (v, d) => (isFinite(v) ? v.toFixed(d) : "–");
+  // True when el sits on a page that isn't the one on screen.
+  const offPage = (el) => { const p = el.closest(".page"); return !!p && !p.classList.contains("on"); };
 
   function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
   function tagHTML(kind) {
@@ -236,6 +239,7 @@
       }
     }
     $$("#anc-demo [data-play]").forEach((b) => b.addEventListener("click", () => play(b.dataset.play, b)));
+    document.addEventListener("pagechange", () => { if (offPage($("#anc-demo"))) stop(); });
     const recompute = debounce(compute, 120);
     tapsSel.addEventListener("change", compute);
     fsSel.addEventListener("change", compute);
@@ -273,7 +277,8 @@
       mac: (s) => `On a laptop the full frame simply goes on the heap: ${ms(s.host_ms)} per frame, every frame kept, outputs identical to numpy's and ${Math.round(numpyX)}× faster than numpy on the same machine.`,
     };
 
-    let cur = null, playing = false, raf = 0, started = false;
+    // away: its page is off screen (it can still load while peeking in, but it doesn't play)
+    let cur = null, playing = false, raf = 0, started = false, away = offPage(box), resume = false;
 
     const strip = C.mount($("#dc-strip"), 46, (s, w, h) => {
       if (!cur) return;
@@ -334,7 +339,8 @@
       if (withVideo) Promise.all(waits).then(() => {
         vids.forEach((v) => { if (v.getAttribute("src")) v.currentTime = 0; });
         $("#dc-vids").classList.remove("loading");
-        setPlaying(playing || !reduceMotion);
+        if (away) resume = playing || !reduceMotion;
+        else setPlaying(playing || !reduceMotion);
       });
 
       const chip = cur.device === "stm32";
@@ -360,10 +366,17 @@
 
     $$(".scen .chip", box).forEach((b) => b.addEventListener("click", () => { started = true; show(b.dataset.s); }));
     $("#dc-play").addEventListener("click", () => setPlaying(!playing));
-    // Nothing downloads until the lab is on screen.
+    // Off screen the videos pause; back on screen they pick up where they were.
+    document.addEventListener("pagechange", () => {
+      if (offPage(box) === away) return;
+      away = !away;
+      if (away) { resume = playing; if (playing) setPlaying(false); }
+      else if (resume) { resume = false; setPlaying(true); }
+    });
+    // Nothing downloads until the lab is on screen, and not while its page is still sliding in.
     const first = () => { if (!started) { started = true; show("stream"); } };
     if ("IntersectionObserver" in window) {
-      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); first(); } }, { rootMargin: "200px" });
+      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(first, 700); } }, { rootMargin: "200px" });
       io.observe(box);
     } else first();
     // Fill the text and numbers before any video loads, so the lab reads correctly at rest.
@@ -718,28 +731,18 @@
       }
     });
     srcSel.addEventListener("change", setSource);
+    document.addEventListener("pagechange", () => { if (offPage(playBtn)) stopAudio(); });
     [nSel, hopSel, cen].forEach((c) => c.addEventListener("change", compute));
     setSource();
   })();
 
 
-  // ── Motion: scroll reveal, masthead, active section, soft value changes ──
+  // ── Motion: masthead, soft value changes ────────────────
   (function motion() {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mast = $(".mast");
     const onScroll = () => mast.classList.toggle("scrolled", window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-
-    if (!("IntersectionObserver" in window)) return;
-    const links = new Map($$(".mast nav a").map((a) => [a.getAttribute("href").slice(1), a]));
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        const a = links.get(e.target.id);
-        if (a && e.isIntersecting) { links.forEach((l) => l.classList.remove("active")); a.classList.add("active"); }
-      });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    $$(".sheet[id]").forEach((s) => spy.observe(s));
 
     // Values that change under the controls settle in softly.
     const mo = new MutationObserver((muts) => {
@@ -756,23 +759,6 @@
       });
     });
     $$(".ro-v, .ro-note, .compare td").forEach((n) => { n.dataset.v = n.textContent; mo.observe(n, { childList: true, characterData: true, subtree: true }); });
-
-    if (reduce) return;
-    // Reveal only what starts below the fold; nothing on the first screen is ever hidden.
-    const groups = [".system-head", ".bd-apps", ".bd-core", ".bd-hw", ".sheet .rail", ".sheet .main", ".foot"];
-    const fold = window.innerHeight;
-    const items = [];
-    groups.forEach((sel) => $$(sel).forEach((g) => {
-      const kids = g.classList.contains("main") || g.classList.contains("bd-apps") ? Array.from(g.children) : [g];
-      kids.forEach((k, i) => { if (k.getBoundingClientRect().top > fold) { k.classList.add("rv"); k.style.setProperty("--i", Math.min(i, 3)); items.push(k); } });
-    }));
-    if (!items.length) return;
-    document.documentElement.classList.add("rv-armed");
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.04 });
-    items.forEach((k) => io.observe(k));
-    window.addEventListener("beforeprint", () => items.forEach((k) => k.classList.add("in")));
   })();
 
   // ── Copy e-mail ─────────────────────────────────────────

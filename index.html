@@ -11,6 +11,8 @@
 </head>
 <body>
 <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="graticule" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12h2.5l2-5.5 3 11 3-8 2.5 5 1.5-2.5H22"/></symbol>
   <symbol id="i-frame" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 15.5l4.5-4 3.5 3 3-2.5 7 5"/><circle cx="15.5" cy="9" r="1.6"/></symbol>
@@ -22,13 +24,75 @@
   <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M4 7.5l8 5.5 8-5.5"/></symbol>
   <symbol id="i-code" viewBox="0 0 24 24"><path d="M9 7.5L4.5 12 9 16.5M15 7.5l4.5 4.5-4.5 4.5"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <!-- rust: bare steel oxidising, the surname on the home page, the core plate on the overview (started by fx.js) -->
+  <filter id="oxidize" color-interpolation-filters="sRGB">
+    <!-- where the rust has taken: coarse noise, biased towards the edges, thresholded by a falling offset -->
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="11" result="spread"/>
+    <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="soft"/>
+    <feColorMatrix in="soft" type="matrix" result="edge" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1"/>
+    <feColorMatrix in="spread" type="matrix" result="noise" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0"/>
+    <feComposite in="noise" in2="edge" operator="arithmetic" k2="1" k3="0.55" result="bias"/>
+    <feColorMatrix in="bias" type="matrix" result="front" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -14">
+      <animate id="rust-name" attributeName="values" begin="indefinite" dur="12s" fill="freeze" calcMode="linear" keyTimes="0;0.18;0.38;0.58;0.76;0.9;1"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -14;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -12.8;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -11.2;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -9;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -6.5;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -4;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -1.2"/>
+    </feColorMatrix>
+    <!-- the oxide: fine grain in iron-oxide tones, lit by a diffuse light only, so it reads matte and pitted -->
+    <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="4" seed="4" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" result="tone" values="2.2 0 0 0 -0.6  2.2 0 0 0 -0.6  2.2 0 0 0 -0.6  0 0 0 0 1"/>
+    <feComponentTransfer in="tone" result="oxide">
+      <feFuncR type="table" tableValues="0.14 0.27 0.4 0.51 0.6 0.7"/>
+      <feFuncG type="table" tableValues="0.055 0.1 0.16 0.22 0.285 0.36"/>
+      <feFuncB type="table" tableValues="0.03 0.04 0.055 0.075 0.1 0.14"/>
+    </feComponentTransfer>
+    <feColorMatrix in="grain" type="matrix" result="height" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 1 0 0 0"/>
+    <feDiffuseLighting in="height" surfaceScale="2.4" diffuseConstant="1" lighting-color="#fff" result="relief">
+      <feDistantLight azimuth="225" elevation="52"/>
+    </feDiffuseLighting>
+    <feComponentTransfer in="relief" result="shade">
+      <feFuncR type="linear" slope="0.5" intercept="0.62"/><feFuncG type="linear" slope="0.5" intercept="0.62"/><feFuncB type="linear" slope="0.5" intercept="0.62"/>
+    </feComponentTransfer>
+    <feBlend in="oxide" in2="shade" mode="multiply" result="matte"/>
+    <feComposite in="matte" in2="SourceAlpha" operator="in" result="shape"/>
+    <feComposite in="shape" in2="front" operator="in"/>
+  </filter>
+  <filter id="oxidize-plate" color-interpolation-filters="sRGB">
+    <!-- where the rust has taken: coarse noise, biased towards the edges, thresholded by a falling offset -->
+    <feTurbulence type="fractalNoise" baseFrequency="0.0065" numOctaves="4" seed="11" result="spread"/>
+    <feGaussianBlur in="SourceAlpha" stdDeviation="22" result="soft"/>
+    <feColorMatrix in="soft" type="matrix" result="edge" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1"/>
+    <feColorMatrix in="spread" type="matrix" result="noise" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0"/>
+    <feComposite in="noise" in2="edge" operator="arithmetic" k2="1" k3="0.55" result="bias"/>
+    <feColorMatrix in="bias" type="matrix" result="front" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -14">
+      <animate id="rust-plate" attributeName="values" begin="indefinite" dur="15s" fill="freeze" calcMode="linear" keyTimes="0;0.18;0.38;0.58;0.76;0.9;1"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -14;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -12.8;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -11.2;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -9;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -6.5;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -4;0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 14 -1.2"/>
+    </feColorMatrix>
+    <!-- the oxide: fine grain in iron-oxide tones, lit by a diffuse light only, so it reads matte and pitted -->
+    <feTurbulence type="fractalNoise" baseFrequency="0.095" numOctaves="5" seed="4" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" result="tone" values="2.2 0 0 0 -0.6  2.2 0 0 0 -0.6  2.2 0 0 0 -0.6  0 0 0 0 1"/>
+    <feComponentTransfer in="tone" result="oxide">
+      <feFuncR type="table" tableValues="0.075 0.14 0.22 0.3 0.37 0.44"/>
+      <feFuncG type="table" tableValues="0.04 0.06 0.09 0.125 0.16 0.2"/>
+      <feFuncB type="table" tableValues="0.03 0.03 0.04 0.05 0.065 0.085"/>
+    </feComponentTransfer>
+    <feColorMatrix in="grain" type="matrix" result="height" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 1 0 0 0"/>
+    <feDiffuseLighting in="height" surfaceScale="3" diffuseConstant="1" lighting-color="#fff" result="relief">
+      <feDistantLight azimuth="225" elevation="52"/>
+    </feDiffuseLighting>
+    <feComponentTransfer in="relief" result="shade">
+      <feFuncR type="linear" slope="0.55" intercept="0.52"/><feFuncG type="linear" slope="0.55" intercept="0.52"/><feFuncB type="linear" slope="0.55" intercept="0.52"/>
+    </feComponentTransfer>
+    <feBlend in="oxide" in2="shade" mode="multiply" result="matte"/>
+    <feComposite in="matte" in2="SourceAlpha" operator="in" result="shape"/>
+    <feComposite in="shape" in2="front" operator="in"/>
+  </filter>
   <symbol id="i-live" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/></symbol>
 </svg>
 
 <header class="mast">
   <div class="mast-in">
-    <a class="mast-id" href="#top">Matis Codjia</a>
+    <a class="mast-id" href="#home">Matis Codjia</a>
     <nav aria-label="Sections">
+      <a href="#overview">Overview</a>
       <a href="#core">frugal_ml</a>
       <a href="#anc">Sound</a>
       <a href="#conv">Image</a>
@@ -40,15 +104,19 @@
     </nav>
     <span class="mast-rev">Rev. 2026.09 · synced <span data-synced>2026-09-23</span></span>
   </div>
+  <span class="mast-progress" aria-hidden="true"></span>
 </header>
 
-<main class="wrap" id="top">
+<main class="wrap">
+<div class="track">
 
-  <!-- ── Front page ─────────────────────────────────── -->
+  <!-- ── Home ───────────────────────────────────────── -->
+  <div class="page page-home" id="home" tabindex="-1">
+  <canvas class="field" aria-hidden="true"></canvas>
   <section class="front" aria-labelledby="name">
     <div>
       <p class="kicker"><span>Edge ML</span><span>Signal processing</span><span>Physical AI</span></p>
-      <h1 class="name" id="name"><span>Matis</span><span>Codjia</span></h1>
+      <h1 class="name" id="name"><span>Matis</span><span data-text="Codjia">Codjia</span></h1>
       <p class="lede">I build machine learning algorithms for constrained devices, where memory is counted in kilobytes and models have to learn, not just run, right next to the sensor. Every result on this page says where and how it was measured.</p>
       <p class="availability">
         <span><span class="pulse" aria-hidden="true"></span><strong>Available for a 6-month end-of-studies internship</strong></span>
@@ -61,44 +129,12 @@
         <a href="#contact">Contact</a>
       </p>
     </div>
-    <div class="features">
-      <h2>Features</h2>
-      <ul>
-        <li><span><b>Learns on the chip.</b> Forward, backward and SGD run on a Cortex-M4F, not just inference of a frozen model.</span></li>
-        <li><span><b>No heap, no std, no runtime.</b> The network is a Rust type; a shape mismatch is a compile error.</span></li>
-        <li><span><b>Measured on the board.</b> Cycle counts from the DWT counter over ST-Link, with the conditions next to every number.</span></li>
-        <li><span><b>One core, three kinds of signal.</b> Sound, images and time-of-flight range, all aimed at the same 128&nbsp;KB.</span></li>
-        <li><span><b>Limits written down.</b> What doesn't work yet sits next to the results, not after them.</span></li>
-      </ul>
-    </div>
   </section>
+  <p class="field-cap"><span class="tag tag-sim" data-t="sim">SIM</span> A depth field seen by a scanning sensor. The target, your cursor, is measured with noise at 20&nbsp;Hz and tracked by a Kalman filter.</p>
+  </div>
 
-  <section class="figures" aria-label="Key figures">
-    <div class="fig">
-      <div class="fig-val"><span class="n">3.42&nbsp;µs</span> <span class="tag tag-chip" data-t="chip">CHIP</span></div>
-      <p class="fig-label"><b>One full training step</b> (forward + backward + update) of a 16-tap adaptive filter on a 168&nbsp;MHz Cortex-M4F. 8&nbsp;kHz audio allows 125&nbsp;µs: a 36.5× margin.</p>
-    </div>
-    <div class="fig">
-      <div class="fig-val"><span class="n">0&nbsp;B</span> <small>of heap</small> <span class="tag tag-exact" data-t="exact">EXACT</span></div>
-      <p class="fig-label"><b>No allocator anywhere in frugal_ml.</b> Every tensor and every layer is sized at compile time, so the whole network lives on the stack.</p>
-    </div>
-    <div class="fig">
-      <div class="fig-val"><span class="n">2.5×</span> <span class="tag tag-chip" data-t="chip">CHIP</span></div>
-      <p class="fig-label"><b>Stack the compiler really reserves</b> versus the naive estimate for the same network (118.8 vs 50.5&nbsp;KB), found by bisecting crashes on the board.</p>
-    </div>
-  </section>
-
-  <p class="legend-strip">
-    <span>Every figure is tagged</span>
-    <span><span class="tag tag-chip" data-t="chip">CHIP</span> measured on the STM32F446RE</span>
-    <span><span class="tag tag-host" data-t="host">HOST</span> measured on a laptop</span>
-    <span><span class="tag tag-proj" data-t="proj">PROJ</span> projected from on-chip cycle counts</span>
-    <span><span class="tag tag-exact" data-t="exact">EXACT</span> computed from sizes</span>
-    <span><span class="tag tag-sim" data-t="sim">SIM</span> simulation</span>
-    <span><span class="tag tag-web" data-t="web">LIVE</span> computed in your browser</span>
-  </p>
-
-  <!-- ── Block diagram ──────────────────────────────── -->
+  <!-- ── Overview: block diagram and tag legend ────── -->
+  <div class="page page-overview" id="overview" tabindex="-1">
   <section class="system" aria-labelledby="system-h">
     <div class="system-head">
       <h2 id="system-h">One core, three kinds of signal</h2>
@@ -157,8 +193,19 @@
     </p>
   </section>
 
+  <p class="legend-strip">
+    <span>Every figure is tagged</span>
+    <span><span class="tag tag-chip" data-t="chip">CHIP</span> measured on the STM32F446RE</span>
+    <span><span class="tag tag-host" data-t="host">HOST</span> measured on a laptop</span>
+    <span><span class="tag tag-proj" data-t="proj">PROJ</span> projected from on-chip cycle counts</span>
+    <span><span class="tag tag-exact" data-t="exact">EXACT</span> computed from sizes</span>
+    <span><span class="tag tag-sim" data-t="sim">SIM</span> simulation</span>
+    <span><span class="tag tag-web" data-t="web">LIVE</span> computed in your browser</span>
+  </p>
+  </div>
+
   <!-- ── frugal_ml ──────────────────────────────────── -->
-  <section class="sheet" id="core" aria-labelledby="core-h">
+  <section class="sheet page" id="core" tabindex="-1" aria-labelledby="core-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--accent)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-chip"/></svg></span></span>
       <p class="rail-label">Core library</p>
@@ -181,9 +228,37 @@
         <h2 id="core-h"><code>frugal_ml</code></h2>
         <p class="sub">Linear algebra and reverse-mode autodiff that train small neural networks on a microcontroller, with no heap and no runtime.</p>
       </header>
-      <div class="prose">
-        <p>Most machine learning on microcontrollers is inference only: train on a GPU, freeze the weights, flash them. The device can never adapt to its own sensor, its own noise or its own drift. frugal_ml runs the backward pass and the weight update on the chip as well.</p>
-        <p>Without a heap there is nowhere to keep the usual autodiff tape, so the graph is a type instead: <code>seq!(A, B, C)</code> becomes <code>Then&lt;A, Then&lt;B, C&gt;&gt;</code>, and the compiler resolves every forward and backward call, and checks every shape, before the binary exists. Nothing is dispatched at runtime.</p>
+
+      <div class="figures">
+        <div class="fig">
+          <div class="fig-val"><span class="n">3.42&nbsp;µs</span> <span class="tag tag-chip" data-t="chip">CHIP</span></div>
+          <p class="fig-label"><b>One full training step</b> (forward + backward + update) of a 16-tap adaptive filter on a 168&nbsp;MHz Cortex-M4F. 8&nbsp;kHz audio allows 125&nbsp;µs: a 36.5× margin.</p>
+        </div>
+        <div class="fig">
+          <div class="fig-val"><span class="n">0&nbsp;B</span> <small>of heap</small> <span class="tag tag-exact" data-t="exact">EXACT</span></div>
+          <p class="fig-label"><b>No allocator anywhere in frugal_ml.</b> Every tensor and every layer is sized at compile time, so the whole network lives on the stack.</p>
+        </div>
+        <div class="fig">
+          <div class="fig-val"><span class="n">2.5×</span> <span class="tag tag-chip" data-t="chip">CHIP</span></div>
+          <p class="fig-label"><b>Stack the compiler really reserves</b> versus the naive estimate for the same network (118.8 vs 50.5&nbsp;KB), found by bisecting crashes on the board.</p>
+        </div>
+      </div>
+
+      <div class="intro">
+        <div class="prose">
+          <p>Most machine learning on microcontrollers is inference only: train on a GPU, freeze the weights, flash them. The device can never adapt to its own sensor, its own noise or its own drift. frugal_ml runs the backward pass and the weight update on the chip as well.</p>
+          <p>Without a heap there is nowhere to keep the usual autodiff tape, so the graph is a type instead: <code>seq!(A, B, C)</code> becomes <code>Then&lt;A, Then&lt;B, C&gt;&gt;</code>, and the compiler resolves every forward and backward call, and checks every shape, before the binary exists. Nothing is dispatched at runtime.</p>
+        </div>
+        <div class="features">
+          <h3>Features</h3>
+          <ul>
+            <li><span><b>Learns on the chip.</b> Forward, backward and SGD run on a Cortex-M4F, not just inference of a frozen model.</span></li>
+            <li><span><b>No heap, no std, no runtime.</b> The network is a Rust type; a shape mismatch is a compile error.</span></li>
+            <li><span><b>Measured on the board.</b> Cycle counts from the DWT counter over ST-Link, with the conditions next to every number.</span></li>
+            <li><span><b>One core, three kinds of signal.</b> Sound, images and time-of-flight range, all aimed at the same 128&nbsp;KB.</span></li>
+            <li><span><b>Limits written down.</b> What doesn't work yet sits next to the results, not after them.</span></li>
+          </ul>
+        </div>
       </div>
 
       <div class="code-pair">
@@ -217,7 +292,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
         </div>
       </div>
 
-      <div>
+      <div class="half-xl">
         <h3 class="h">Characteristics</h3>
         <div class="table-wrap">
           <table class="table">
@@ -235,10 +310,13 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
         </div>
       </div>
 
-      <figure class="figure">
-        <div class="figure-body"><svg class="chart" id="ram-chart" role="img" aria-labelledby="ram-cap"></svg></div>
-        <figcaption id="ram-cap"><b>Where the RAM goes.</b> 64 → 64 → 32 → 10 network, training on the chip. When the whole forward/backward chain inlines into one function, its stack frame is sized once, for every intermediate value at the same time: 2.5× the naive count. Forcing one frame per layer made it worse, because the optimizer could no longer reuse short-lived values across layers. Adding 4&nbsp;% more parameters crashed the board (MemManage fault). The planned fix is an API change: layers write into a buffer the caller provides instead of returning by value.</figcaption>
-      </figure>
+      <div class="half-xl">
+        <h3 class="h">Memory</h3>
+        <figure class="figure">
+          <div class="figure-body"><svg class="chart" id="ram-chart" role="img" aria-labelledby="ram-cap"></svg></div>
+          <figcaption id="ram-cap"><b>Where the RAM goes.</b> 64 → 64 → 32 → 10 network, training on the chip. When the whole forward/backward chain inlines into one function, its stack frame is sized once, for every intermediate value at the same time: 2.5× the naive count. Forcing one frame per layer made it worse, because the optimizer could no longer reuse short-lived values across layers. Adding 4&nbsp;% more parameters crashed the board (MemManage fault). The planned fix is an API change: layers write into a buffer the caller provides instead of returning by value.</figcaption>
+        </figure>
+      </div>
 
       <div>
         <h3 class="h">Known limits</h3>
@@ -253,7 +331,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── ANC ────────────────────────────────────────── -->
-  <section class="sheet" id="anc" aria-labelledby="anc-h">
+  <section class="sheet page" id="anc" tabindex="-1" aria-labelledby="anc-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-wave"/></svg></span></span>
       <p class="rail-label">Demo · Sound</p>
@@ -270,11 +348,11 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
       </p>
     </aside>
     <div class="main">
-      <header>
+      <header class="half">
         <h2 id="anc-h">Cancelling noise by learning it, one sample at a time</h2>
         <p class="sub">An adaptive filter trained online on the microcontroller: the simplest case of on-device learning, and a real signal-processing tool.</p>
       </header>
-      <div class="prose">
+      <div class="prose half">
         <p>A microphone hears a signal mixed with engine-like noise. A second sensor hears only the noise, through a path nobody measured. A single neuron with 16 weights learns, sample by sample, to predict the noise from that reference; subtracting its prediction leaves the signal. In frugal_ml this needs no special code: <code>Linear&lt;16, 1&gt;</code> + <code>mse</code> + <code>Sgd</code> is exactly the Widrow–Hoff LMS filter.</p>
       </div>
 
@@ -333,7 +411,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── directConv ─────────────────────────────────── -->
-  <section class="sheet" id="conv" aria-labelledby="conv-h">
+  <section class="sheet page" id="conv" tabindex="-1" aria-labelledby="conv-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-frame"/></svg></span></span>
       <p class="rail-label">Demo · Image</p>
@@ -350,11 +428,11 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
       </p>
     </aside>
     <div class="main">
-      <header>
+      <header class="half">
         <h2 id="conv-h">When the frame doesn't fit: convolution in 128&nbsp;KB</h2>
         <p class="sub">The same 3×3 convolution held in memory four ways, against a chip whose whole stack is 126.4&nbsp;KB.</p>
       </header>
-      <div class="prose">
+      <div class="prose half">
         <p>A 1280×720 frame, two filters and their outputs take 11&nbsp;MB: 91 times what the chip can hold. directConv drives frugal_ml from Python and compares the ways out. Keep the full frame on the stack: fast, but the largest 16:9 frame that fits is 128×72. Put it on the heap: the chip has no allocator. Shrink the frame: you lose pixels. Or stream it.</p>
         <p>Streaming (<code>ConvStreaming</code>) keeps only the three input rows each filter needs. Memory then depends on the frame's width, not its height: 46&nbsp;kB for 1280-wide video. The price is speed, about 1.2 frames per second at 720p on the chip.</p>
       </div>
@@ -394,7 +472,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
         <p class="demo-foot">Clip: Big Buck Bunny, 10&nbsp;s excerpt at 1280×720, 30&nbsp;fps, © 2008 Blender Foundation, <a href="https://peach.blender.org" target="_blank" rel="noopener">peach.blender.org</a>, <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Rendered with <code>scripts/render_directconv.py</code>, which calls directConv's own <code>runner.run</code> and <code>runner.play</code>; videos re-encoded for the web.</p>
       </div>
 
-      <div class="demo" id="wall-demo">
+      <div class="demo half-xl" id="wall-demo">
         <div class="demo-head">
           <span class="ico ico-sm" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-frame"/></svg></span></span>
           <span class="demo-title">Any frame size · the memory wall <span class="tag tag-exact" data-t="exact">EXACT</span> <span class="tag tag-proj" data-t="proj">PROJ</span></span>
@@ -421,7 +499,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
         </figure>
       </div>
 
-      <div class="aside">
+      <div class="aside half-xl">
         <div class="aside-num"><span class="n" id="dc-x">21×</span> <small>laptop, one 720p frame <span class="tag tag-host" data-t="host">HOST</span></small></div>
         <div>
           <p>On a laptop (Apple M4 Pro), frugal_ml's full-frame path takes <span id="dc-heap-ms">0.55</span>&nbsp;ms per 720p frame where numpy takes <span id="dc-numpy-ms">11.4</span>&nbsp;ms, and the outputs are identical. The arithmetic isn't faster: <span id="dc-copy">81</span>&nbsp;% of numpy's time is one copy. <code>np.tensordot</code> needs a flat matrix for BLAS, so it materialises every 3×3 window, <span id="dc-copy-mb">33</span>&nbsp;MB per frame; frugal_ml's <code>tensordot_3</code> reads the same windows through strides and never copies them.</p>
@@ -432,7 +510,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── Sentinel ───────────────────────────────────── -->
-  <section class="sheet" id="sentinel" aria-labelledby="sentinel-h">
+  <section class="sheet page" id="sentinel" tabindex="-1" aria-labelledby="sentinel-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--accent-2)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-radar"/></svg></span></span>
       <p class="rail-label">In progress · Range</p>
@@ -448,11 +526,11 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
       </p>
     </aside>
     <div class="main">
-      <header>
+      <header class="half">
         <h2 id="sentinel-h">Sentinel: a time-of-flight radar that tracks what moves</h2>
         <p class="sub">No camera. An 8×8 depth sensor on a pan-tilt arm scans, separates moving objects from the background, locks onto one and tracks it, with the whole estimation loop on the microcontroller.</p>
       </header>
-      <div class="prose">
+      <div class="prose half">
         <p>The sensor sees in 64 cones of about 5.6° each, which fixes a trade-off no software removes: at a few metres a moving object is a coarse blob, as it would be for a real radar, and fine contours such as the fingers of a hand only resolve at 20 to 30&nbsp;cm. So the plan has two modes: a fast wide scan for detection and tracking, and a slow fine raster on a close target.</p>
         <p>Everything is written from the datasheet up: servo PWM, the I²C sensor driver, clustering, the Kalman filter on frugal_ml tensors, the serial protocol, and a software 3D renderer on the Mac side.</p>
       </div>
@@ -513,7 +591,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── Classifhear ────────────────────────────────── -->
-  <section class="sheet" id="classifhear" aria-labelledby="ch-h">
+  <section class="sheet page" id="classifhear" tabindex="-1" aria-labelledby="ch-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--plum)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-spectrum"/></svg></span></span>
       <p class="rail-label">Starting · Sound</p>
@@ -529,11 +607,11 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
       </p>
     </aside>
     <div class="main">
-      <header>
+      <header class="half">
         <h2 id="ch-h">Classifhear: recognising city sounds, headed for the edge</h2>
         <p class="sub">Sirens, drills, dog barks, engines: ten classes of urban sound, to be classified on a microcontroller in the end. For now, the groundwork: what a frame of audio is.</p>
       </header>
-      <div class="prose">
+      <div class="prose half">
         <p>Three weeks in, the work is feature extraction written by hand before reaching for the library versions: amplitude envelope, RMS energy, zero-crossing rate. The first real lesson came from a test impulse: computing each value from the start of its frame shifts every curve half a frame early. Frame length and hop turned out to be the same trade-off as a convolution's kernel and stride: overlap keeps context, and costs compute.</p>
       </div>
 
@@ -569,7 +647,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── Roadmap ────────────────────────────────────── -->
-  <section class="sheet" id="roadmap" aria-labelledby="rm-h">
+  <section class="sheet page" id="roadmap" tabindex="-1" aria-labelledby="rm-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--amber)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-route"/></svg></span></span>
       <p class="rail-label">Roadmap</p>
@@ -615,13 +693,13 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
         </div>
       </div>
 
-      <div>
+      <div class="half-xl">
         <h3 class="h">Activity, commits per week</h3>
         <div class="lanes"><div class="lanes-in" id="lanes"></div></div>
         <p class="lanes-foot"><span>Fewer <span class="ramp" id="ramp"></span> more · all branches, merges excluded</span><span>Uncommitted work doesn't show here.</span></p>
       </div>
 
-      <div>
+      <div class="half-xl">
         <h3 class="h">Revision history</h3>
         <div class="changelog-wrap">
           <table class="changelog">
@@ -634,7 +712,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── Background ─────────────────────────────────── -->
-  <section class="sheet" id="background" aria-labelledby="bg-h">
+  <section class="sheet page" id="background" tabindex="-1" aria-labelledby="bg-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--patina)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-cap"/></svg></span></span>
       <p class="rail-label">Background</p>
@@ -646,7 +724,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
     </aside>
     <div class="main">
       <header><h2 id="bg-h">Background</h2></header>
-      <table class="cv">
+      <table class="cv half-xl">
         <tbody>
           <tr><td>2024 – 2027</td><td><b>EPITA, MEng in Computer Science</b> <span class="org">· M2, AI major, research track at the LRE lab</span><p>Machine learning, optimisation, probability, inferential statistics, linear algebra.</p></td></tr>
           <tr><td>Jan 2025 – now</td><td><b>Student researcher</b> <span class="org">· LRE, EPITA Research Lab</span><p>A cross-evaluation protocol for medical-image segmentation (3D U-Net), with paired statistical tests across complementary metrics to separate real model improvement from noise in the data. A retrieval-augmented generation pipeline (OCR → embeddings → retrieval) benchmarked against direct prompting.</p></td></tr>
@@ -655,7 +733,7 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
           <tr><td>2021 – 2024</td><td><b>Université de Rennes (ISTIC), BSc in Computer Science</b></td></tr>
         </tbody>
       </table>
-      <div class="skills">
+      <div class="skills half-xl">
         <div><b>Embedded &amp; systems</b>Rust (no_std, const generics), STM32 / Cortex-M, probe-rs, DWT cycle counting, PyO3</div>
         <div><b>Machine learning</b>PyTorch, autodiff from scratch, CNNs (3D U-Net), evaluation with paired statistical tests</div>
         <div><b>Signals &amp; estimation</b>Adaptive filtering (LMS), convolution, Kalman filtering, audio features</div>
@@ -667,7 +745,8 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
   </section>
 
   <!-- ── Contact ────────────────────────────────────── -->
-  <section class="sheet" id="contact" aria-labelledby="ct-h">
+  <div class="page page-contact" id="contact" tabindex="-1">
+  <section class="sheet" aria-labelledby="ct-h">
     <aside class="rail">
       <span class="ico ico-lg" style="--h:var(--accent)" aria-hidden="true"><span class="halo"></span><span class="tile"><svg><use href="#i-mail"/></svg></span></span>
       <p class="rail-label">Contact</p>
@@ -687,13 +766,19 @@ sgd(&amp;<span class="k">mut</span> net, &amp;grads, 0.05);</pre>
       </div>
     </div>
   </section>
-
   <footer class="foot">
     <p>Static page: HTML, CSS and plain JavaScript, no framework, no tracking. Figures come from the linked repositories' benchmark documents; the activity and revision history are regenerated from git by <code>scripts/sync_activity.py</code>.</p>
     <p>Rev. 2026.09</p>
   </footer>
+  </div>
+
+</div>
+<div class="seam" aria-hidden="true"></div>
 </main>
 
+<script src="assets/js/pages.js"></script>
+<script src="assets/js/fx.js"></script>
+<script src="assets/js/field.js"></script>
 <script src="data/activity.js"></script>
 <script src="data/directconv.js"></script>
 <script src="assets/js/anc-core.js"></script>
