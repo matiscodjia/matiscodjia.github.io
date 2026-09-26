@@ -6,8 +6,8 @@
 // "pagechange" to pause what goes off screen.
 //
 // Motion: one number, pos (where the track is, in pages), follows goal on a spring. Everything
-// that moves reads it: the track, each page's parallax layers, the scan line on the seam between
-// two pages, the progress trace under the masthead, the graticule behind.
+// that moves reads it: the track, each page's parallax layers, the hairline on the seam between
+// two pages, the progress trace under the masthead.
 (function () {
   "use strict";
   const $ = (s, r) => (r || document).querySelector(s);
@@ -20,7 +20,7 @@
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const mast = $(".mast"), nav = $(".mast nav"), links = $$("a", nav);
-  const seam = $(".seam"), progress = $(".mast-progress"), grat = $(".graticule"), ambient = $(".ambient");
+  const seam = $(".seam"), progress = $(".mast-progress");
   const names = {};
   links.forEach((a) => { names[a.getAttribute("href").slice(1)] = a.textContent; });
   const title = document.title;
@@ -72,7 +72,6 @@
       seam.style.opacity = f > 0.001 && !reduce ? Math.min(1, Math.sin(Math.PI * f) * 1.6).toFixed(3) : 0;
     }
     if (progress) progress.style.setProperty("--p", ((pos + 1) / list.length).toFixed(4));
-    if (grat) grat.style.transform = `translate3d(${(-((pos * 96) % 28)).toFixed(1)}px, 0, 0)`;
   }
   function tick(t) {
     const dt = lastT ? Math.min(0.034, (t - lastT) / 1000) : 1 / 60;
@@ -115,9 +114,6 @@
       // on a narrow screen the nav scrolls sideways: bring the current entry to its middle
       if (on) { const ar = a.getBoundingClientRect(), nr = nav.getBoundingClientRect(); nav.scrollLeft += ar.left + ar.width / 2 - (nr.left + nr.width / 2); }
     });
-    // the ambient light takes the colour of the page's own icon
-    const ico = $(".rail .ico, .ico", current);
-    if (ambient) ambient.style.setProperty("--mood", (ico && ico.style.getPropertyValue("--h")) || "var(--amber)");
     document.title = names[current.id] ? `${names[current.id]} · ${title}` : title;
     if (window.C) window.C.untip();
     syncMast();

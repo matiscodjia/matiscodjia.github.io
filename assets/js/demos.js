@@ -160,7 +160,7 @@
       C.axes(s, { w, h, m, x, y, xTicks: [0, 10, 20, 30, 40], yTicks: y.ticks(4), xFmt: (v) => (v === 0 ? "3.96 s" : "+" + v + " ms"), yFmt: (v) => v.toFixed(1) });
       const xs = [], ys = [], ye = [];
       for (let i = i0; i < n; i++) { xs.push(x(((i - i0) / fs) * 1000)); ys.push(y(sig[i])); ye.push(y(Math.max(-A, Math.min(A, e[i])))); }
-      C.line(s, C.path(xs, ys), "var(--ink-2)", 1.5);
+      C.line(s, C.path(xs, ys), "var(--muted)", 1.5);
       C.line(s, C.path(xs, ye), "var(--accent)", 2.2);
       C.hover(s, { l: m.l, r: w - m.r, t: m.t, b: h - m.b }, (px) => {
         const i = i0 + Math.max(0, Math.min(k - 1, Math.round((x.inv(px) / 1000) * fs)));
@@ -485,7 +485,7 @@
       const px = (x1 - x0) * 0.04, pz = (z1 - z0) * 0.08;
       const x = C.lin(x0 - px, x1 + px, m.l, w - m.r), y = C.lin(z0 - pz, z1 + pz, h - m.b, m.t);
       C.axes(s, { w, h, m, x, y, xTicks: x.ticks(6), yTicks: y.ticks(5), xFmt: (v) => v + " m", yFmt: (v) => v + "" });
-      C.line(s, C.path(sim.truth.map((p) => x(p[0])), sim.truth.map((p) => y(p[2]))), "var(--ink-2)", 1.5);
+      C.line(s, C.path(sim.truth.map((p) => x(p[0])), sim.truth.map((p) => y(p[2]))), "var(--muted)", 1.5);
       const g = C.el("g", { fill: "var(--patina)", opacity: 0.8, class: "mk" }, s);
       sim.meas.forEach((p) => C.el("circle", { cx: x(p[0]).toFixed(1), cy: y(p[2]).toFixed(1), r: 2.2 }, g));
       C.line(s, C.path(sim.est.slice(2).map((p) => x(p[0])), sim.est.slice(2).map((p) => y(p[2]))), "var(--accent)", 2.2);
@@ -506,7 +506,7 @@
       const y = C.lin(0, hi, h - m.b, m.t);
       C.axes(s, { w, h, m, x, y, xTicks: x.ticks([1]), yTicks: y.ticks(4), xFmt: (v) => "q " + v, yFmt: (v) => v + " m" });
       const ry = Math.round(y(sweep.raw)) + 0.5;
-      C.el("line", { x1: m.l, x2: w - m.r, y1: ry, y2: ry, stroke: "var(--ink-2)", "stroke-width": 2 }, s);
+      C.el("line", { x1: m.l, x2: w - m.r, y1: ry, y2: ry, stroke: "var(--muted)", "stroke-width": 2 }, s);
       C.line(s, C.path(sweep.q.map(x), sweep.est.map(y)), "var(--accent)", 2.2);
       const cq = q(), cy = y(sweep.current);
       C.el("line", { x1: x(cq), x2: x(cq), y1: m.t, y2: h - m.b, stroke: "var(--ink)", "stroke-width": 1, opacity: 0.4 }, s);

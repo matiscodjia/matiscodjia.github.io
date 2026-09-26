@@ -19,7 +19,7 @@
   let styles = [], col = {}, raf = 0, running = false, stopT = 0, last = 0;
   const t0 = performance.now();
 
-  // ── Colours from the page's own tokens ───────────────────
+  // ── Colours from the page's own tokens: greys only, low ground light, peaks and the track in ink ──
   const ALPHAS = [0.07, 0.15, 0.27, 0.41, 0.58, 0.78], LEVELS = 12;
   function rgb(v, fb) {
     const m = /^#([0-9a-f]{6})$/i.exec((v || "").trim());
@@ -29,8 +29,8 @@
   }
   function palette() {
     const cs = getComputedStyle(document.documentElement), g = (n, fb) => rgb(cs.getPropertyValue(n), fb);
-    col = { low: g("--patina", [0, 144, 125]), mid: g("--amber", [244, 164, 42]), high: g("--accent", [224, 83, 31]),
-            muted: g("--muted", [140, 112, 97]), ink: g("--ink", [35, 21, 16]), ink2: g("--ink-2", [91, 67, 54]) };
+    col = { low: g("--muted", [138, 138, 138]), mid: g("--ink-2", [74, 74, 74]), high: g("--ink", [17, 17, 17]),
+            muted: g("--muted", [138, 138, 138]), ink: g("--ink", [17, 17, 17]), ink2: g("--ink-2", [74, 74, 74]) };
     const mix = (a, b, k) => a.map((x, i) => Math.round(x + (b[i] - x) * k));
     styles = [];
     for (let c = 0; c < LEVELS; c++) {
